@@ -1,1 +1,9 @@
-let synth = 0
+type wave =
+  | Saw
+  | Triangle
+  | Square
+
+type synth = {
+  waveform : wave;
+  frequency : float;
+}
