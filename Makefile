@@ -16,9 +16,9 @@ finalcheck:
 	@bash check.sh final
 
 zip:
-	rm -f enigma.zip
-	zip -r enigma.zip . -x@exclude.lst
+	rm -f synth.zip
+	zip -r synth.zip . -x@exclude.lst
 
 clean:
 	dune clean
-	rm -f enigma.zip
+	rm -f synth.zip
