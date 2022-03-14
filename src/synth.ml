@@ -7,5 +7,5 @@ type wave =
 type synth = {
   waveform : wave;
   frequency : float;
-  amplitutde : float;
+  amplitude : float;
 }
