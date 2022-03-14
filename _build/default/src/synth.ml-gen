@@ -1,0 +1,2 @@
+(** @canonical Synth.Enigma *)
+module Enigma = Synth__Enigma
