@@ -22,3 +22,6 @@ zip:
 clean:
 	dune clean
 	rm -f synth.zip
+
+main:
+	OCAMLRUNPARAM=b dune exec bin/main.exe
