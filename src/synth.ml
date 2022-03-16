@@ -25,3 +25,9 @@ let new_wave wave freq =
 let start state = state.playing <- true
 let release sound = sound.playing <- false
 let is_playing sound = sound.playing = true
+let time = 6
+let sample_rate = 44000
+
+let sine_sound (freq : float) =
+  new Audio.Generator.of_mono
+    (new Audio.Mono.Generator.sine sample_rate (440.0 *. freq))

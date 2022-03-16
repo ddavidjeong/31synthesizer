@@ -6,8 +6,10 @@ build:
 test:
 	@dune exec ./test.exe
 
+
+
 synth:
-	@dune exec ./synth.exe
+	@dune exec ./main.exe
 
 valgrind: build
 	valgrind ../_build/default/examples/test.exe --skip-long
