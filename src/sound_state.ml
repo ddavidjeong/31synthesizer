@@ -1,6 +1,5 @@
-type state = { state : int }
+type sound_state = { mutable state : int }
 
-let make_sound freq amp = freq *. amp
-let init_state () = { state = 1 }
-let kill_state = { state = 0 }
-let state_state state = if state.state = 1 then true else false
+let init_state () = { state = 0 }
+let release_state state = state.state <- 1
+let dead_state state = state.state = 0

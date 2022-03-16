@@ -1,2 +1,3 @@
 (library
- (name synth))
+ (name synth)
+ (libraries mm.audio mm))
