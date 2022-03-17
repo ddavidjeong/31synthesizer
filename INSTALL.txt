@@ -1,0 +1,16 @@
+# macOS
+
+
+
+
+
+
+# Ubuntu/WSL
+
+# install mm library
+opam install mm
+
+# install ao
+sudo apt-get install liba0-dev
+opam install a0
+
