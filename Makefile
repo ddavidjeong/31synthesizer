@@ -17,7 +17,7 @@ finalcheck:
 
 zip:
 	rm -f synth.zip
-	zip -r synth.zip . -x@exclude.lst
+	zip -r synth.zip .
 
 clean:
 	dune clean
