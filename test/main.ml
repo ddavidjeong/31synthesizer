@@ -1,12 +1,11 @@
 open OUnit2
 open Synth
 open Mm_audio
-
-let total_duration = 10
+let total_duration = 1
 
 let () =
-  let channels = 2 in
-  let sample_rate = 44100 in
+  let channels = 4 in
+  let sample_rate = 2000 in
   let ao = new Mm_ao.writer channels sample_rate in
   let wav =
     new Audio.IO.Writer.to_wav_file channels sample_rate "out.wav"
@@ -15,12 +14,12 @@ let () =
   let buf = Audio.create channels blen in
   let sine =
     new Audio.Generator.of_mono
-      (new Audio.Mono.Generator.sine sample_rate 440.)
+      (new Audio.Mono.Generator.sine sample_rate 840.)
   in
   for _ = 0 to (sample_rate / blen * total_duration) - 1 do
-    sine#fill buf 0 blen;
-    wav#write buf 0 blen;
-    ao#write buf 0 blen
+    sine#fill buf;
+    wav#write buf;
+    ao#write buf
   done;
   wav#close;
   ao#close
