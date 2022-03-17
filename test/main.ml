@@ -2,12 +2,24 @@ open OUnit2
 open Synth
 open Mm_audio
 
-let parse (input : string) : float * int =
-  let inputs = String.split_on_char ' ' input in 
-  let freq = List.nth inputs 0 |> float_of_string in 
-  let dur = List.nth inputs 1 |> int_of_string in 
-  (freq, dur)
-  
+let parse (input : string) : float * int * string =
+  let inputs = String.split_on_char ' ' input in
+  let freq = List.nth inputs 0 |> float_of_string in
+  let dur = List.nth inputs 1 |> int_of_string in
+  let wave = List.nth inputs 2 in
+  (freq, dur, wave)
+
+let get_wave = function
+  | "square" -> new Audio.Mono.Generator.square
+  | "saw" -> new Audio.Mono.Generator.saw
+  | "triangle" -> new Audio.Mono.Generator.triangle
+  | "sine" -> new Audio.Mono.Generator.sine
+  | _ -> new Audio.Mono.Generator.sine
+
+let fst (x, _, _) = x
+let snd (_, y, _) = y
+let thd (_, _, z) = z
+
 let play_sound input =
   let total_duration = snd input in
   let frequency = fst input in
@@ -21,7 +33,7 @@ let play_sound input =
   let buf = Audio.create channels blen in
   let sine =
     new Audio.Generator.of_mono
-      (new Audio.Mono.Generator.sine sample_rate frequency)
+      (get_wave (thd input) sample_rate frequency)
   in
   for _ = 0 to (sample_rate / blen * total_duration) - 1 do
     sine#fill buf;
@@ -31,13 +43,14 @@ let play_sound input =
   wav#close;
   ao#close
 
-let play = 
+let play =
   while true do
-  print_string "Input <frequency>(float) <duration>(int) or \"quit\": ";
-  match read_line () with
-  | "quit" -> Stdlib.exit 0 
-  | input -> input |> parse |> play_sound
+    print_string
+      "Input: <frequency : float> <duration : int> <wave : string> or \
+       \"quit\": ";
+    match read_line () with
+    | x when String.trim x = "quit" -> Stdlib.exit 0
+    | input -> input |> parse |> play_sound
   done
 
-let () = 
-  play
+let () = play
