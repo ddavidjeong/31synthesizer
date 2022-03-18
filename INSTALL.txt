@@ -1,7 +1,7 @@
 # macOS (homebrew)
 
-homebrew install libao
-homebrew install mm
+brew install libao
+brew install mm
 
 
 # Ubuntu/WSL
