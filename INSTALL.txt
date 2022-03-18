@@ -1,8 +1,7 @@
-# macOS
+# macOS (homebrew)
 
-
-
-
+homebrew install libao
+homebrew install mm
 
 
 # Ubuntu/WSL
