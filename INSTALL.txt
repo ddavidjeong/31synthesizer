@@ -1,8 +1,8 @@
 # macOS (homebrew)
 
 brew install libao
-brew install mm
-
+opam install mm
+opam install a0
 
 # Ubuntu/WSL
 
