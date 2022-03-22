@@ -2,4 +2,9 @@
  (name main)
  (modules main)
  (optional)
- (libraries synth ounit2 mm.audio mm.ao))
+ (libraries synth ounit2 mm.audio mm.ao graphics))
+
+(executable
+ (name gui)
+ (modules gui)
+ (libraries synth ounit2 mm.audio mm.ao graphics))

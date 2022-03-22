@@ -6,7 +6,8 @@ build:
 test:
 	@dune exec ./test.exe
 
-
+gui:
+	@dune exec ./gui.exe
 
 synth:
 	@dune exec ./main.exe
