@@ -46,9 +46,7 @@ let sample_rate = 44000
 let sound (freq : float) sample_rate (wave : wave) =
   (* new Audio.Generator.of_mono ((get_wave wave) sample_rate (440.0 *.
      freq)) *)
-  440.0 *. freq
-  |> get_wave wave sample_rate
-  |> new Audio.Generator.of_mono
+  freq |> get_wave wave sample_rate |> new Audio.Generator.of_mono
 
 let write_sound
     channels
