@@ -41,8 +41,8 @@ let play_sound input =
 let play =
   while true do
     print_string
-      "Input: <frequency : float> <duration : int> <wave : string> or \
-       \"quit\": ";
+      "Input: <frequency : float> <duration : int> <waveform : string> \
+       or \"quit\": ";
     match read_line () with
     | x when String.trim x = "quit" -> Stdlib.exit 0
     | input -> input |> parse |> play_sound
