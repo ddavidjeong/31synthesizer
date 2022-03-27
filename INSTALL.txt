@@ -1,0 +1,15 @@
+# macOS (homebrew)
+
+brew install libao
+opam install mm
+opam install a0
+
+# Ubuntu/WSL
+
+# install mm library
+opam install mm
+
+# install ao
+sudo apt-get install liba0-dev
+opam install a0
+
