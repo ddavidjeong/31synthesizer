@@ -1,5 +1,4 @@
 open OUnit2
-open Synth
 open Mm_audio
 
 let parse (input : string) : float * int * string =
@@ -10,11 +9,11 @@ let parse (input : string) : float * int * string =
   (freq, dur, wave)
 
 let get_wave = function
-  | "square" -> Synth.Square
-  | "saw" -> Synth.Saw
-  | "triangle" -> Synth.Triangle
-  | "sine" -> Synth.Sine
-  | _ -> Synth.Sine
+  | "square" -> Synth__Sound.Square
+  | "saw" -> Synth__Sound.Saw
+  | "triangle" -> Synth__Sound.Triangle
+  | "sine" -> Synth__Sound.Sine
+  | _ -> Synth__Sound.Sine
 
 let fst (x, _, _) = x
 let snd (_, y, _) = y
@@ -30,8 +29,9 @@ let play_sound input =
      "../output/out.wav" in *)
   (* let wave = Synth.sound *)
   let blen = 1024 in
-  let wave = Synth.sound frequency sample_rate (get_wave (thd input)) in
-  Synth.write_sound channels sample_rate blen total_duration wave
+  let wave = get_wave (thd input) in
+  Synth__Sound.write_sound frequency sample_rate channels sample_rate
+    blen total_duration "out.wav" wave
 (* let buf = Audio.create channels blen in let sine = new
    Audio.Generator.of_mono (get_wave (thd input) sample_rate frequency)
    in for _ = 0 to (sample_rate / blen * total_duration) - 1 do
@@ -41,8 +41,8 @@ let play_sound input =
 let play =
   while true do
     print_string
-      "Input: <frequency : float> <duration : int> <waveform : string> \
-       or \"quit\": ";
+      "Input: <frequency : float>\n\
+      \   <duration : int> <waveform : string>  or \"quit\": ";
     match read_line () with
     | x when String.trim x = "quit" -> Stdlib.exit 0
     | input -> input |> parse |> play_sound

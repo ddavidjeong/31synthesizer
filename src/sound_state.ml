@@ -1,12 +1,17 @@
 open Mm
 
-type sound_state = { mutable state : int }
+type sound_state = {
+  mutable ao : Mm_ao.writer;
+  mutable buffer : Audio.t;
+}
 
-let init_state () = { state = 0 }
-let release_state state = state.state <- 1
-let dead_state state = state.state = 0
-
-let create_ao_state channels sample_rate =
+let new_ao_state channels sample_rate =
   new Mm_ao.writer channels sample_rate
 
-let create_buf channels buf_len = Audio.create channels buf_len
+let new_buf channels buf_len = Audio.create channels buf_len
+
+let init_state channels sr buf_len =
+  { ao = new_ao_state channels sr; buffer = new_buf channels buf_len }
+
+let get_ao st = st.ao
+let get_buf st = st.buffer

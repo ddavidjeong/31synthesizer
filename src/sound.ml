@@ -8,6 +8,7 @@ type wave =
   | Square
 
 type sound_state = {
+  blen : int;
   mutable ao : Mm_ao.writer;
   mutable buffer : Audio.t;
 }
@@ -18,7 +19,11 @@ let new_ao_state channels sample_rate =
 let new_buf channels buf_len = Audio.create channels buf_len
 
 let init_state channels sr buf_len =
-  { ao = new_ao_state channels sr; buffer = new_buf channels buf_len }
+  {
+    blen = buf_len;
+    ao = new_ao_state channels sr;
+    buffer = new_buf channels buf_len;
+  }
 
 type synth = {
   waveform : wave;
@@ -56,8 +61,8 @@ let start sound =
   let wave =
     make_generator sound.frequency sound.sample_rate sound.waveform
   in
-  let () = wave#fill buf in
-  let () = ao#write buf in
+  wave#fill buf;
+  ao#write buf;
   sound.sound_state.ao <- ao
 
 let release sound =
@@ -69,21 +74,16 @@ let is_playing sound = sound.playing = true
 (* let time = 6 *)
 
 let write_sound
+    freq
+    sr
     channels
     sample_rate
     buf_len
     duration
-    file_name
-    (mono_generator : Audio.Generator.of_mono) =
-  let ao = new Mm_ao.writer channels sample_rate in
-  let wav =
-    new Audio.IO.Writer.to_wav_file channels sample_rate file_name
-  in
-  let buf = Audio.create channels buf_len in
+    (file_name : string)
+    wave =
+  let sound = new_wave wave freq sr channels buf_len in
   for _ = 0 to (sample_rate / buf_len * duration) - 1 do
-    mono_generator#fill buf;
-    wav#write buf;
-    ao#write buf
+    start sound
   done;
-  wav#close;
-  ao#close
+  release sound

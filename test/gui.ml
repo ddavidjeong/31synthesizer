@@ -1,1 +1,0 @@
-let init = Graphics.open_graph ""
