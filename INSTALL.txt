@@ -1,8 +1,11 @@
+*Note: The synthesizer only works on macOS and Linux due to WSL permission errors with audio
+
 # macOS (homebrew)
 
 brew install libao
 opam install mm
-opam install a0
+opam install ao
+opam install graphics
 
 # Ubuntu/WSL
 
@@ -10,6 +13,9 @@ opam install a0
 opam install mm
 
 # install ao
-sudo apt-get install liba0-dev
-opam install a0
+sudo apt-get install libao-dev
+opam install ao
+
+# install graphics (if not yet installed)
+opam install graphics
 
