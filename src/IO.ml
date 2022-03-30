@@ -17,6 +17,6 @@ let record sound io =
   wav#write buf;
   io.wav <- wav
 
-let stop_recording sound io =
+let stop_recording io =
   let wav = io.wav in
   wav#close

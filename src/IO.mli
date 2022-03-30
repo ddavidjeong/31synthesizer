@@ -4,7 +4,7 @@ type io_t
 
 val init_io : int -> int -> string -> io_t
 val record : synth -> io_t -> unit
-val stop_recording : synth -> io_t -> unit
+val stop_recording : io_t -> unit
 
 (* val record : synth -> string -> unit *)
 (** [record synth fn] creates a new .wav file under fn and starts

@@ -30,36 +30,66 @@ let play_sound input =
   (* let wave = Synth.sound *)
   let blen = 1024 in
   let wave = get_wave (thd input) in
-  let sound = Synth__Sound.new_wave wave frequency sample_rate channels blen in
-  for _ = 0 to (sample_rate/blen * total_duration) do
+  let sound =
+    Synth__Sound.new_wave wave frequency sample_rate channels blen
+  in
+  for _ = 0 to sample_rate / blen * total_duration do
     Synth__Sound.start sound
   done;
   Synth__Sound.release sound
-    
+
 (* let buf = Audio.create channels blen in let sine = new
    Audio.Generator.of_mono (get_wave (thd input) sample_rate frequency)
    in for _ = 0 to (sample_rate / blen * total_duration) - 1 do
    sine#fill buf; wav#write buf; ao#write buf done; wav#close;
    ao#close *)
 
+let rec record_sound io input =
+  let total_duration = snd input in
+  let frequency = fst input in
+  let channels = 4 in
+  let sample_rate = 2000 in
+  (* let ao = new Mm_ao.writer channels sample_rate in *)
+  (* let wav = new Audio.IO.Writer.to_wav_file channels sample_rate
+     "../output/out.wav" in *)
+  (* let wave = Synth.sound *)
+  let blen = 1024 in
+  let wave = get_wave (thd input) in
+  let sound =
+    Synth__Sound.new_wave wave frequency sample_rate channels blen
+  in
+  for _ = 0 to sample_rate / blen * total_duration do
+    Synth__Sound.start sound;
+    Synth__IO.record sound io
+  done;
+  Synth__Sound.release sound;
+  record_play io
 
-let record_sound io = 
-
-
+and record_play io =
+  print_string
+    "Input: <frequency : float> <duration : int> <waveform : string>  \
+     or \"quit\": ";
+  match read_line () with
+  | x when String.trim x = "stop" -> Synth__IO.stop_recording io
+  | input -> input |> parse |> record_sound io
 
 let play =
   while true do
     print_string
-      "Input: <frequency : float>\n\
-      \   <duration : int> <waveform : string>  or \"quit\": ";
+      "To play a sound, please input: <frequency : float> <duration : \
+       int> <waveform : string>\n\
+      \       To record, please enter \"record\". Then, input the \
+       required data.\n\
+      \       To stop recording, enter \"stop\"\n\
+      \       To exit the interface, enter \"quit\"";
     match read_line () with
     | x when String.trim x = "quit" -> Stdlib.exit 0
+    | "record" ->
+        let ch = 4 in
+        let sr = 2000 in
+        let io = Synth__IO.init_io ch sr "test" in
+        record_play io
     | input -> input |> parse |> play_sound
-    | x when String.trim x = "record" -> 
-      let ch = 4 in
-      let sr = 2000 in
-      let io = Synth__IO.init_io ch sr "out" in 
-      Synth__IO.record 
   done
 
 let () = play
