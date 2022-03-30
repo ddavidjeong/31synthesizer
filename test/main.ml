@@ -30,13 +30,22 @@ let play_sound input =
   (* let wave = Synth.sound *)
   let blen = 1024 in
   let wave = get_wave (thd input) in
-  Synth__Sound.write_sound frequency sample_rate channels sample_rate
-    blen total_duration "out.wav" wave
+  let sound = Synth__Sound.new_wave wave frequency sample_rate channels blen in
+  for _ = 0 to (sample_rate/blen * total_duration) do
+    Synth__Sound.start sound
+  done;
+  Synth__Sound.release sound
+    
 (* let buf = Audio.create channels blen in let sine = new
    Audio.Generator.of_mono (get_wave (thd input) sample_rate frequency)
    in for _ = 0 to (sample_rate / blen * total_duration) - 1 do
    sine#fill buf; wav#write buf; ao#write buf done; wav#close;
    ao#close *)
+
+
+let record_sound io = 
+
+
 
 let play =
   while true do
@@ -46,6 +55,11 @@ let play =
     match read_line () with
     | x when String.trim x = "quit" -> Stdlib.exit 0
     | input -> input |> parse |> play_sound
+    | x when String.trim x = "record" -> 
+      let ch = 4 in
+      let sr = 2000 in
+      let io = Synth__IO.init_io ch sr "out" in 
+      Synth__IO.record 
   done
 
 let () = play
