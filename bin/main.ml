@@ -70,10 +70,6 @@ let rec loop () =
   if e.key == 'j' then fill_rect 740 280 100 100;
   if e.key == 'k' then fill_rect 860 280 100 100;
   Synth__Gui.key_pressed e;
-  let test = sprintf "test: %B" e.button in
-  print_at 200 150 test;
-
-  draw_rect 20 20 100 100;
   if e.key <> 'p' then loop () else ()
 
 let () =
