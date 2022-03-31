@@ -18,6 +18,36 @@ let get_wave = function
 let fst (x, _, _) = x
 let snd (_, y, _) = y
 let thd (_, _, z) = z
+
+let print_float_array a = 
+  print_string "\n[| ";
+  for i = 0 to Array.length a - 1 do 
+    print_float a.(i); 
+    print_string "; "
+  done;
+  print_string " |]\n"
+
+(* Applies function f to each channel of an audio array. *)
+let all_channels a f = 
+  for c = 0 to Array.length a - 1 do f a.(c) done
+
+(*  Mutates an array in-place such that each element is the average of itself
+    and the next n elements. *)
+let blur n a = 
+  for i = 0 to Array.length a - 1 - n do
+    a.(i) <- (a.(i) +. a.(i + n)) /. float_of_int n
+  done
+
+(*  Smoothing lowpass filter example adapted from:
+    http://phrogz.net/js/framerate-independent-low-pass-filter.html*)
+let smooth (smoothing : float) (values : float array) = 
+  let value = ref values.(0) in 
+  for i = 1 to Array.length values - 1 do
+    let current_value = values.(i) in 
+    value := !value +. ((current_value -. !value) /. smoothing);
+    values.(i) <- current_value
+  done
+
 let play_using_generator input = 
   let total_duration = snd input in
   let channels = 2 in
@@ -33,6 +63,19 @@ let play_using_generator input =
   let loop_indices = (sample_rate / blen * total_duration) - 1 in
   for x = 0 to loop_indices do
     sine#fill buf;
+    (* Envelope *)
+    
+    let inc_coeff = x mod (loop_indices / 8) |> abs in 
+    let dec_coeff = (loop_indices - x) mod (loop_indices / 8) |> abs in 
+    Audio.add_coeff buf ((inc_coeff - dec_coeff) |> abs |> float_of_int) buf;
+    
+    (* Avg filter *)
+    (*
+    let a = Audio.to_array buf in (* Get array of raw data *)
+    (*blur 20 |> all_channels a;*) (* Smoothing using my blur *)
+    smooth 10. |> all_channels a; (* Smoothing using smooth example *)
+    let buf = Audio.of_array a in (* Create abstract Audio.t from array *) 
+    *)
     wav#write buf;
     ao#write buf;
   done;
@@ -52,8 +95,8 @@ let play_using_synth input =
   (*  Use this to switch between playing a whole buffer or looping over a 
       generator  *)
   let play_sound input =
-  play_using_synth input
-  (*play_using_generator input*)
+  (*play_using_synth input*)
+  play_using_generator input
 
 let rec record_sound io input =
   let total_duration = snd input in
