@@ -2,10 +2,14 @@ open OUnit2
 open Mm_audio
 
 let parse (input : string) : float * int * string =
-  let inputs = String.split_on_char ' ' input in
+  let inputs =
+    String.split_on_char ' ' input |> List.filter (fun x -> x <> "")
+  in
   let freq = List.nth inputs 0 |> float_of_string in
   let dur = List.nth inputs 1 |> int_of_string in
-  let wave = List.nth inputs 2 in
+  let wave =
+    if List.length inputs < 3 then "sine" else List.nth inputs 2
+  in
   (freq, dur, wave)
 
 let get_wave = function
@@ -74,14 +78,16 @@ and record_play io =
   | input -> input |> parse |> record_sound io
 
 let play =
+  print_string
+    "       To play a sound, please input: <frequency : float> \
+     <duration : int> <waveform : string>\n\
+    \       To record, please enter \"record\". Then, input the \
+     required data.\n\
+    \       To stop recording, enter \"stop\"\n\
+    \       To exit the interface, enter \"quit\"\n";
   while true do
     print_string
-      "To play a sound, please input: <frequency : float> <duration : \
-       int> <waveform : string>\n\
-      \       To record, please enter \"record\". Then, input the \
-       required data.\n\
-      \       To stop recording, enter \"stop\"\n\
-      \       To exit the interface, enter \"quit\"";
+      "\nPlease input sound information or a command (i.e. record): ";
     match read_line () with
     | x when String.trim x = "quit" -> Stdlib.exit 0
     | "record" ->
