@@ -9,9 +9,6 @@ utop:
 test:
 	OCAMLRUNPARAM=b dune exec test/main.exe
 
-sound:
-	OCAMLRUNPARAM=b dune exec src/filters.exe
-
 check:
 	@bash check.sh
 
