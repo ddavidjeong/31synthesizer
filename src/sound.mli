@@ -35,3 +35,4 @@ val get_buf : synth -> Audio.t
 val get_waveform : synth -> wave
 val get_freq : synth -> float
 val get_sr : synth -> int
+val set_freq : synth -> float -> unit

@@ -32,7 +32,7 @@ let init_state channels sr buf_len =
 
 type synth = {
   waveform : wave;
-  frequency : float;
+  mutable frequency : float;
   sample_rate : int;
   mutable playing : bool;
   sound_state : sound_state;
@@ -58,6 +58,7 @@ let new_wave wave freq sr ch blen =
   }
 
 let get_waveform sound = sound.waveform
+let set_freq sound freq = sound.frequency <- freq
 let get_freq sound = sound.frequency
 let get_sr sound = sound.sample_rate
 
@@ -95,5 +96,5 @@ let write_sound
   let sound = new_wave wave freq sr channels buf_len in
   for _ = 0 to (sr / buf_len * duration) - 1 do
     start sound
-  done;
-  release sound
+  done
+(* release sound *)

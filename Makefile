@@ -6,8 +6,11 @@ build:
 utop:
 	OCAMLRUNPARAM=b dune utop src
 
-test:
+terminal:
 	OCAMLRUNPARAM=b dune exec test/main.exe
+
+test:
+	OCAMLRUNPARAM=b dune exec test/test.exe
 
 check:
 	@bash check.sh
@@ -25,3 +28,6 @@ clean:
 
 main:
 	OCAMLRUNPARAM=b dune exec bin/main.exe
+
+main2:
+	OCAMLRUNPARAM=b dune exec bin/main2.exe
