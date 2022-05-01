@@ -57,25 +57,26 @@ let play_using_generator input =
   let wav = new Audio.IO.Writer.to_wav_file channels sample_rate "out.wav" in
   let blen = 1024 in
   let buf = Audio.create channels blen in
-  let sine =
+  let generator =
     new Audio.Generator.of_mono (new Audio.Mono.Generator.sine sample_rate freq)
   in
   let loop_indices = (sample_rate / blen * total_duration) - 1 in
   for x = 0 to loop_indices do
-    sine#fill buf;
+    generator#fill buf;
     (* Envelope *)
-    
-    let inc_coeff = x mod (loop_indices / 8) |> abs in 
-    let dec_coeff = (loop_indices - x) mod (loop_indices / 8) |> abs in 
+    (* let factor = 6 in 
+    let inc_coeff = x mod (loop_indices / factor) |> abs in 
+    let dec_coeff = (loop_indices - x) mod (loop_indices / factor) |> abs in 
     Audio.add_coeff buf ((inc_coeff - dec_coeff) |> abs |> float_of_int) buf;
+    *)
     
     (* Avg filter *)
-    (*
+    
     let a = Audio.to_array buf in (* Get array of raw data *)
-    (*blur 20 |> all_channels a;*) (* Smoothing using my blur *)
-    smooth 10. |> all_channels a; (* Smoothing using smooth example *)
+    blur 20 |> all_channels a; (* Smoothing using my blur *)
+    (*smooth 10. |> all_channels a;*) (* Smoothing using smooth example *)
     let buf = Audio.of_array a in (* Create abstract Audio.t from array *) 
-    *)
+    
     wav#write buf;
     ao#write buf;
   done;
