@@ -94,7 +94,7 @@ let play_using_generator input =
     (* Avg filter *)
     
     let a = Audio.to_array buf in (* Get array of raw data *)
-    (*blur 10 |> all_channels a;*) (* Smoothing using my blur *)
+    (*blur 2 |> all_channels a;*) (* Smoothing using my blur *)
     (*smooth 5. |> all_channels a;*) (* Smoothing using smooth example *)
     let buf = Audio.of_array a in (* Create abstract Audio.t from array *) 
 
