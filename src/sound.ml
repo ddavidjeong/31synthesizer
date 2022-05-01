@@ -73,8 +73,8 @@ let start sound =
   let wave =
     make_generator sound.frequency sound.sample_rate sound.waveform
   in
-  wave#fill buf;
-  ao#write buf;
+  wave#fill buf 0 0;
+  ao#write buf 0 0;
   sound.sound_state.ao <- ao
 
 let release sound =
