@@ -42,11 +42,16 @@ let blur n a =
     http://phrogz.net/js/framerate-independent-low-pass-filter.html*)
 let smooth (smoothing : float) (values : float array) = 
   let value = ref values.(0) in 
-  for i = 1 to Array.length values - 1 do
+  for i = 0 to Array.length values - 1 do
     let current_value = values.(i) in 
     value := !value +. ((current_value -. !value) /. smoothing);
     values.(i) <- current_value
   done
+
+let envelope factor index indices buf = 
+  let inc_coeff = index mod (indices / factor) |> abs in 
+  let dec_coeff = (indices - index) mod (indices / factor) in 
+  Audio.add_coeff buf ((inc_coeff - dec_coeff) |> float_of_int) buf
 
 let play_using_generator input = 
   let total_duration = snd input in
@@ -60,21 +65,17 @@ let play_using_generator input =
   let generator =
     new Audio.Generator.of_mono (new Audio.Mono.Generator.sine sample_rate freq)
   in
-  let loop_indices = (sample_rate / blen * total_duration) - 1 in
-  for x = 0 to loop_indices do
+  let indices = (sample_rate / blen * total_duration) - 1 in
+  for i = 0 to indices do
     generator#fill buf;
     (* Envelope *)
-    (* let factor = 6 in 
-    let inc_coeff = x mod (loop_indices / factor) |> abs in 
-    let dec_coeff = (loop_indices - x) mod (loop_indices / factor) |> abs in 
-    Audio.add_coeff buf ((inc_coeff - dec_coeff) |> abs |> float_of_int) buf;
-    *)
+    envelope 2 i indices buf;
     
     (* Avg filter *)
     
     let a = Audio.to_array buf in (* Get array of raw data *)
-    blur 20 |> all_channels a; (* Smoothing using my blur *)
-    (*smooth 10. |> all_channels a;*) (* Smoothing using smooth example *)
+    (*blur 10 |> all_channels a;*) (* Smoothing using my blur *)
+    (*smooth 5. |> all_channels a;*) (* Smoothing using smooth example *)
     let buf = Audio.of_array a in (* Create abstract Audio.t from array *) 
 
     wav#write buf;
@@ -146,5 +147,3 @@ let play =
         record_play io
     | input -> input |> parse |> play_sound
   done
-
-let () = play
