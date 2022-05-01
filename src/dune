@@ -1,4 +1,8 @@
 (library
  (name synth)
  (public_name Synth)
+<<<<<<< HEAD
  (libraries mm.audio mm.ao mm graphics sdl2))
+=======
+ (libraries mm mm.audio mm.ao graphics))
+>>>>>>> fde72cf8e352e0799bc216c098e538f104d66051

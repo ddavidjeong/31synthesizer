@@ -1,20 +1,18 @@
 open OUnit2
-open Mm_audio
+open Synth
+open Synth.Filters
 
-let parse (input : string) : float * int * string =
-  let inputs = String.split_on_char ' ' input in
-  let freq = List.nth inputs 0 |> float_of_string in
-  let dur = List.nth inputs 1 |> int_of_string in
-  let wave = List.nth inputs 2 in
-  (freq, dur, wave)
+let gui_test (name : string) (func) (input : char) (expected_output : int) :
+    test = name >:: fun _ ->
+  (* the [printer] tells OUnit how to convert the output to a string *)
+  assert_equal expected_output (func input) ~printer:string_of_int
 
-let get_wave = function
-  | "square" -> Synth__Sound.Square
-  | "saw" -> Synth__Sound.Saw
-  | "triangle" -> Synth__Sound.Triangle
-  | "sine" -> Synth__Sound.Sine
-  | _ -> Synth__Sound.Sine
+let generator_test (name : string) (func) (input : char) (expected_output : int) :
+  test = name >:: fun _ ->
+(* the [printer] tells OUnit how to convert the output to a string *)
+assert_equal expected_output (func input) ~printer:string_of_int
 
+<<<<<<< HEAD
 let fst (x, _, _) = x
 let snd (_, y, _) = y
 let thd (_, _, z) = z
@@ -59,36 +57,29 @@ let play_using_synth input =
    generator *)
 let play_sound input = play_using_synth input
 (*play_using_generator input*)
+=======
+let filter_test (name : string) (func) (input : char) (expected_output : int) :
+    test = name >:: fun _ ->
+  (* the [printer] tells OUnit how to convert the output to a string *)
+  assert_equal expected_output (func input) ~printer:string_of_int
 
-let rec record_sound io input =
-  let total_duration = snd input in
-  let frequency = fst input in
-  let channels = 4 in
-  let sample_rate = 2000 in
-  (* let ao = new Mm_ao.writer channels sample_rate in *)
-  (* let wav = new Audio.IO.Writer.to_wav_file channels sample_rate
-     "../output/out.wav" in *)
-  (* let wave = Synth.sound *)
-  let blen = 1024 in
-  let wave = get_wave (thd input) in
-  let sound =
-    Synth__Sound.new_wave wave frequency sample_rate channels blen
-  in
-  for _ = 0 to sample_rate / blen * total_duration do
-    Synth__Sound.start sound;
-    Synth__IO.record sound io
-  done;
-  Synth__Sound.release sound;
-  record_play io
+let gui_tests = []
 
-and record_play io =
-  print_string
-    "Input: <frequency : float> <duration : int> <waveform : string>  \
-     or \"quit\": ";
-  match read_line () with
-  | x when String.trim x = "stop" -> Synth__IO.stop_recording io
-  | input -> input |> parse |> record_sound io
+let generator_tests = []
+>>>>>>> fde72cf8e352e0799bc216c098e538f104d66051
 
+let filter_tests = []
+
+let tests =
+  "test suite for Synth"
+  >::: List.flatten
+         [
+           gui_tests;
+           generator_tests;
+           filter_tests
+         ]
+
+<<<<<<< HEAD
 type input =
   | Record
   | Play of string
@@ -118,5 +109,11 @@ let play =
         Synth.IO.open_wav fn_input
     | input -> input |> parse |> play_sound
   done
+=======
+let () = 
+  print_endline "What to test? ([Enter] runs suite)";
+  match read_line () with 
+  | "filters" -> play
+  | _ -> run_test_tt_main tests
+>>>>>>> fde72cf8e352e0799bc216c098e538f104d66051
 
-let () = play
