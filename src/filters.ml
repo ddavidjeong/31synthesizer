@@ -1,4 +1,5 @@
 open Mm_audio
+open Mm
 
 let parse (input : string) : float * int * string =
   let inputs = String.split_on_char ' ' input in
@@ -75,7 +76,7 @@ let play_using_generator input =
     blur 20 |> all_channels a; (* Smoothing using my blur *)
     (*smooth 10. |> all_channels a;*) (* Smoothing using smooth example *)
     let buf = Audio.of_array a in (* Create abstract Audio.t from array *) 
-    
+
     wav#write buf;
     ao#write buf;
   done;

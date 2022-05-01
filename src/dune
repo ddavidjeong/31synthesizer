@@ -1,4 +1,4 @@
 (library
  (name synth)
  (public_name Synth)
- (libraries mm.audio mm.ao mm graphics))
+ (libraries mm mm.audio mm.ao graphics))
