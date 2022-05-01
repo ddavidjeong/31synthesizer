@@ -1,12 +1,13 @@
 open Mm_audio
 open Mm
 
-let parse (input : string) : float * int * string =
+let parse (input : string) : float * int * string * string =
   let inputs = String.split_on_char ' ' input in
   let freq = List.nth inputs 0 |> float_of_string in
   let dur = List.nth inputs 1 |> int_of_string in
   let wave = List.nth inputs 2 in
-  (freq, dur, wave)
+  let filter = List.nth inputs 3 in
+  (freq, dur, wave, filter)
 
 let get_wave = function
   | "square" -> Synth__Sound.Square
@@ -15,9 +16,11 @@ let get_wave = function
   | "sine" -> Synth__Sound.Sine
   | _ -> Synth__Sound.Sine
 
-let fst (x, _, _) = x
-let snd (_, y, _) = y
-let thd (_, _, z) = z
+
+let fst (x, _, _, _) = x
+let snd (_, x, _, _) = x
+let thd (_, _, x, _) = x
+let frth (_, _, _, x) = x
 
 let print_float_array a = 
   print_string "\n[| ";
@@ -38,7 +41,7 @@ let blur n a =
     a.(i) <- (a.(i) +. a.(i + n)) /. float_of_int n
   done
 
-(*  Smoothing lowpass filter example adapted from:
+(*  Smoothing lowpass filter example adapted to OCaml from:
     http://phrogz.net/js/framerate-independent-low-pass-filter.html*)
 let smooth (smoothing : float) (values : float array) = 
   let value = ref values.(0) in 
@@ -48,10 +51,25 @@ let smooth (smoothing : float) (values : float array) =
     values.(i) <- current_value
   done
 
-let envelope factor index indices buf = 
-  let inc_coeff = index mod (indices / factor) |> abs in 
-  let dec_coeff = (indices - index) mod (indices / factor) in 
-  Audio.add_coeff buf ((inc_coeff - dec_coeff) |> float_of_int) buf
+let envelope (factor : float) (index : int) last_index buf = 
+  let indexf = float_of_int index in 
+  let last_indexf = float_of_int last_index in 
+  let inc_coeff = mod_float indexf (last_indexf) /. factor |> Float.abs in 
+  let dec_coeff = mod_float (last_indexf -. indexf) (last_indexf /. factor) |> Float.abs in 
+  Audio.add_coeff buf ((inc_coeff -. dec_coeff) |> Float.abs) buf
+
+(*let envelope (factor : int) (index : int) last_index buf = 
+  let inc_coeff = index mod (last_index) / factor |> abs in 
+  let dec_coeff = (last_index - index) mod (last_index / factor) |> abs in 
+  Audio.add_coeff buf ((inc_coeff - dec_coeff) |> abs |> float_of_int) buf*)
+
+
+let get_generator = function
+  | "square" -> new Audio.Mono.Generator.square
+  | "saw" -> new Audio.Mono.Generator.saw
+  | "triangle" -> new Audio.Mono.Generator.triangle
+  | "sine" -> new Audio.Mono.Generator.sine
+  | _ -> new Audio.Mono.Generator.sine
 
 let play_using_generator input = 
   let total_duration = snd input in
@@ -62,15 +80,17 @@ let play_using_generator input =
   let wav = new Audio.IO.Writer.to_wav_file channels sample_rate "out.wav" in
   let blen = 1024 in
   let buf = Audio.create channels blen in
+  let wave = get_generator (thd input) in
+  (* let filter = (frth input) in *)
   let generator =
-    new Audio.Generator.of_mono (new Audio.Mono.Generator.sine sample_rate freq)
+    new Audio.Generator.of_mono (wave sample_rate freq)
   in
-  let indices = (sample_rate / blen * total_duration) - 1 in
-  for i = 0 to indices do
+  let last_index = (sample_rate / blen * total_duration) - 1 in
+  for i = 0 to last_index do
     generator#fill buf;
     (* Envelope *)
-    envelope 2 i indices buf;
-    
+    envelope 10. i last_index buf;
+
     (* Avg filter *)
     
     let a = Audio.to_array buf in (* Get array of raw data *)
@@ -95,10 +115,13 @@ let play_using_synth input =
   Synth__Sound.start sound
 
   (*  Use this to switch between playing a whole buffer or looping over a 
-      generator  *)
-  let play_sound input =
+      generator  
+      
+      So apparently Synth just uses generator *)
+let play_sound input =
   (*play_using_synth input*)
   play_using_generator input
+
 
 let rec record_sound io input =
   let total_duration = snd input in
@@ -133,7 +156,7 @@ let play =
   while true do
     print_string
       "To play a sound, please input: <frequency : float> <duration : \
-       int> <waveform : string>\n\
+       int> <waveform : string> <filter : string> \n\
       \       To record, please enter \"record\". Then, input the \
        required data.\n\
       \       To stop recording, enter \"stop\"\n\
