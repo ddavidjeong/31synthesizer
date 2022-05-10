@@ -7,9 +7,12 @@ type io_t = {
   mutable wav : Audio.IO.Writer.to_wav_file;
 }
 
-let init_io ch sr fn =
-  let name = Printf.sprintf "%s.wav" fn in
-  { filename = fn; wav = new Audio.IO.Writer.to_wav_file ch sr name }
+let init_io (channels : int) (sample_rate : int) (filename : string) =
+  let name = Printf.sprintf "%s.wav" filename in
+  {
+    filename;
+    wav = new Audio.IO.Writer.to_wav_file channels sample_rate name;
+  }
 
 let get_filename io = io.filename
 

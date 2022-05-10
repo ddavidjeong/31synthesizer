@@ -3,14 +3,38 @@ open Printf
 open Sdl
 (* open Sound *)
 
+type color =
+  | Black
+  | White
+  | Red
+
 type button = {
   x : int;
   y : int;
+  w : int;
+  h : int;
   mutable clicked : bool;
+  mutable color : color;
 }
 
-let letters renderer char =
-  match char with
+type slider = {
+  x : int;
+  y : int;
+  length : float;
+  mutable notch_pos : int * int;
+  corr_button : button;
+}
+
+let match_color (color : color) =
+  match color with
+  | Black -> (0, 0, 0)
+  | White -> (255, 255, 255)
+  | Red -> (252, 3, 3)
+
+let letters renderer (character : char) (color : color) =
+  let color_int = match_color color in
+  Sdlrender.set_draw_color renderer color_int 255;
+  match character with
   | 'a' ->
       fun x y ->
         Sdlrender.draw_rects renderer
@@ -255,6 +279,12 @@ let letters renderer char =
             { x; y = y + 3; w = 7; h = 2 };
             { x = x + 3; y = y + 3; w = 2; h = 7 };
           |]
+  | 'z' ->
+      fun x y ->
+        Sdlrender.draw_rects renderer
+          [| { x; y; w = 7; h = 2 }; { x; y = y + 8; w = 7; h = 2 } |];
+        Sdlrender.draw_lines renderer
+          [| (x + 6, y); (x, y + 9); (x + 1, y + 9); (x + 7, y) |]
   | ':' ->
       fun x y ->
         Sdlrender.draw_rects renderer
@@ -271,22 +301,57 @@ let letters renderer char =
             { x; y = y + 2; w = 7; h = 2 };
             { x; y = y + 5; w = 7; h = 2 };
           |]
+  | '!' ->
+      fun x y ->
+        Sdlrender.draw_rects renderer
+          [| { x; y; w = 2; h = 7 }; { x; y = y + 8; w = 2; h = 2 } |]
+  | '.' ->
+      fun x y ->
+        Sdlrender.draw_rects renderer
+          [| { x; y = y + 8; w = 2; h = 2 } |]
+  | ',' ->
+      fun x y ->
+        Sdlrender.draw_rects renderer
+          [| { x; y = y + 8; w = 2; h = 2 } |];
+        Sdlrender.draw_lines renderer [| (x + 1, y + 10); (x, y + 11) |]
+  | '-' ->
+      fun x y ->
+        Sdlrender.draw_rects renderer
+          [| { x; y = y + 4; w = 5; h = 2 } |]
   | _ -> fun x y -> ()
 
-let sample_rate = 1000
+let sample_rate = 44100
 let channels = 4
 let buf_len = 1024
-let create_button x y = { x; y; clicked = false }
+
+let create_button x y w h =
+  { x; y; w; h; clicked = false; color = Black }
+
+let create_slider x y button =
+  { x; y; length = 110.; notch_pos = (x, y); corr_button = button }
+
 let get_clicked button = button.clicked
-let get_x button = button.x
-let get_y button = button.y
-let set_clicked button v = button.clicked <- v
+let get_x (button : button) = button.x
+let get_y (button : button) = button.y
+let get_w (button : button) = button.w
+let get_h (button : button) = button.h
+let get_x_slider (slider : slider) = slider.x
+let get_y_slider (slider : slider) = slider.y
+let get_notch slider = slider.notch_pos
+let get_corr_button slider = slider.corr_button
+let set_clicked button (v : bool) = button.clicked <- v
 (* let key_pressed (e : keyboard_event) (sound : Sound.synth) = (* let
    dur = 1 in *) (* if e.keypressed then *) match e.keycode with | A ->
    (* let freq = 261. in let wave = Sound.new_wave Sound.Sine freq
    sample_rate channels buf_len in *) (* Sound.start wave; *)
    Sound.set_freq sound 261.; Printf.printf "works \n" | _ ->
    Printf.printf "" *)
+
+let set_notch (x : int) slider =
+  slider.notch_pos <- (x, snd slider.notch_pos)
+
+let set_color button (color : color) = button.color <- color
+let get_color button = match_color button.color
 
 let match_wave wave freq =
   match wave with
@@ -303,74 +368,23 @@ let key_pressed (e : keyboard_event) (wave : string) =
   (* let dur = 1 in *)
   (* if e.keypressed then *)
   (* let sound = *)
+  let gen_wave waveform freq =
+    let wave = match_wave waveform freq in
+    wave
+  in
   match e.keycode with
-  | A ->
-      (* C *)
-      let freq = 261. in
-      let wave = match_wave wave freq in
-      (* Sound.start wave; *)
-      wave
-  | W ->
-      (* C# *)
-      let freq = 277. in
-      let wave = match_wave wave freq in
-      wave
-  | S ->
-      (* D *)
-      let freq = 293. in
-      let wave = match_wave wave freq in
-      (* Sound.start wave; *) wave
-  | E ->
-      (* D# *)
-      let freq = 311. in
-      let wave = match_wave wave freq in
-      wave
-  | D ->
-      (* E *)
-      let freq = 329. in
-      let wave = match_wave wave freq in
-      (* Sound.start wave; *) wave
-  | F ->
-      (* F *)
-      let freq = 349. in
-      let wave = match_wave wave freq in
-      (* Sound.start wave; *) wave
-  | T ->
-      (* F# *)
-      let freq = 370. in
-      let wave = match_wave wave freq in
-      (* Sound.start wave; *) wave
-  | G ->
-      (* G *)
-      let freq = 392. in
-      let wave = match_wave wave freq in
-      (* Sound.start wave; *) wave
-  | Y ->
-      (* G# *)
-      let freq = 415. in
-      let wave = match_wave wave freq in
-      (* Sound.start wave; *) wave
-  | H ->
-      (* A *)
-      let freq = 440. in
-      let wave = match_wave wave freq in
-      (* Sound.start wave; *) wave
-  | U ->
-      (* A# *)
-      let freq = 466. in
-      let wave = match_wave wave freq in
-      (* Sound.start wave; *) wave
-  | J ->
-      (* B *)
-      let freq = 494. in
-      let wave = match_wave wave freq in
-      (* Sound.start wave; *) wave
-  | K ->
-      (* C *)
-      let freq = 523. in
-      let wave = match_wave wave freq in
-      (* Sound.start wave; *) wave
+  | A -> gen_wave wave 261. (* C *)
+  | W -> gen_wave wave 277. (* C# *)
+  | S -> gen_wave wave 293. (* D *)
+  | E -> gen_wave wave 311. (* D# *)
+  | D -> gen_wave wave 329. (* E *)
+  | F -> gen_wave wave 349. (* F *)
+  | T -> gen_wave wave 370. (* F# *)
+  | G -> gen_wave wave 392. (* G *)
+  | Y -> gen_wave wave 415. (* G# *)
+  | H -> gen_wave wave 440. (* A *)
+  | U -> gen_wave wave 466. (* A# *)
+  | J -> gen_wave wave 494. (* B *)
+  | K -> gen_wave wave 523. (* C *)
+  | Space -> gen_wave wave 0. (*no sound*)
   | _ -> Sound.new_wave Sound.Sine 0. sample_rate channels buf_len
-(* in sound *)
-(* if e.ke_state = Pressed then Sound.start sound *)
-(* else Sound.release sound *)

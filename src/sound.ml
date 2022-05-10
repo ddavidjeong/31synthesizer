@@ -12,22 +12,41 @@ type sound_state = {
   channels : int;
   mutable ao : Mm_ao.writer;
   mutable buffer : Audio.t;
+  mutable generator : Audio.Generator.of_mono;
 }
 
-let new_ao_state channels sample_rate =
+let get_wave (wave : wave) (sample_rate : int) (freq : float) =
+  match wave with
+  | Square -> new Audio.Mono.Generator.square sample_rate freq
+  | Saw -> new Audio.Mono.Generator.saw sample_rate freq
+  | Triangle -> new Audio.Mono.Generator.triangle sample_rate freq
+  | Sine -> new Audio.Mono.Generator.sine sample_rate freq
+
+let new_ao_state (channels : int) (sample_rate : int) =
   new Mm_ao.writer channels sample_rate
 
-let new_buf channels buf_len = Audio.create channels buf_len
+let new_buf (channels : int) (buf_len : int) =
+  Audio.create channels buf_len
 
-let new_wav channels sr =
-  new Audio.IO.Writer.to_wav_file channels sr "out.wav"
+let new_wav (channels : int) (sample_rate : int) =
+  new Audio.IO.Writer.to_wav_file channels sample_rate "out.wav"
 
-let init_state channels sr buf_len =
+let new_generator (freq : float) (sample_rate : int) (wave : wave) =
+  let wave = get_wave wave sample_rate freq in
+  new Audio.Generator.of_mono wave
+
+let init_state
+    (channels : int)
+    (sample_rate : int)
+    (buf_len : int)
+    (freq : float)
+    (wave : wave) =
   {
     blen = buf_len;
     channels;
-    ao = new_ao_state channels sr;
+    ao = new_ao_state channels sample_rate;
     buffer = new_buf channels buf_len;
+    generator = new_generator freq sample_rate wave;
   }
 
 type synth = {
@@ -40,41 +59,39 @@ type synth = {
 
 let get_ch sound = sound.sound_state.channels
 let get_buf sound = sound.sound_state.buffer
+let set_buf sound buf = sound.sound_state.buffer <- buf
 
-let get_wave wave sample_rate freq =
-  match wave with
-  | Square -> new Audio.Mono.Generator.square sample_rate freq
-  | Saw -> new Audio.Mono.Generator.saw sample_rate freq
-  | Triangle -> new Audio.Mono.Generator.triangle sample_rate freq
-  | Sine -> new Audio.Mono.Generator.sine sample_rate freq
-
-let new_wave wave freq sr ch blen =
+let new_wave
+    wave
+    (freq : float)
+    (sample_rate : int)
+    (ch : int)
+    (buf_len : int) =
   {
     waveform = wave;
     frequency = freq;
-    sample_rate = sr;
+    sample_rate;
     playing = false;
-    sound_state = init_state ch sr blen;
+    sound_state = init_state ch sample_rate buf_len freq wave;
   }
 
 let get_waveform sound = sound.waveform
-let set_freq sound freq = sound.frequency <- freq
+let set_freq sound (freq : float) = sound.frequency <- freq
 let get_freq sound = sound.frequency
 let get_sr sound = sound.sample_rate
+let get_generator sound = sound.sound_state.generator
 
-let make_generator (freq : float) sample_rate (wave : wave) =
-  (* new Audio.Generator.of_mono ((get_wave wave) sample_rate (440.0 *.
-     freq)) *)
-  freq |> get_wave wave sample_rate |> new Audio.Generator.of_mono
+let start_generator sound =
+  let buf = sound.sound_state.buffer in
+  let generator = sound.sound_state.generator in
+  generator#fill buf;
+  sound.sound_state.buffer <- buf
 
 let start sound =
   sound.playing <- true;
   let ao = sound.sound_state.ao in
   let buf = sound.sound_state.buffer in
-  let wave =
-    make_generator sound.frequency sound.sample_rate sound.waveform
-  in
-  wave#fill buf;
+  (* let wave = sound.sound_state.generator in wave#fill buf; *)
   ao#write buf;
   sound.sound_state.ao <- ao
 
@@ -84,17 +101,3 @@ let release sound =
   ao#close
 
 let is_playing sound = sound.playing = true
-
-let write_sound
-    freq
-    sr
-    channels
-    buf_len
-    duration
-    (file_name : string)
-    wave =
-  let sound = new_wave wave freq sr channels buf_len in
-  for _ = 0 to (sr / buf_len * duration) - 1 do
-    start sound
-  done
-(* release sound *)
