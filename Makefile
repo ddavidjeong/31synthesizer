@@ -12,6 +12,7 @@ terminal:
 test:
 	OCAMLRUNPARAM=b dune exec test/test.exe
 
+
 check:
 	@bash check.sh
 
@@ -31,3 +32,6 @@ main:
 
 main2:
 	OCAMLRUNPARAM=b dune exec bin/main2.exe
+
+terminal:
+	OCAMLRUNPARAM=b dune exec bin/terminal.exe
