@@ -64,6 +64,96 @@ let all_channels array func =
   for c = 0 to Array.length array - 1 do
     func array.(c)
   done
+  
+  let blur (inten : int) (values : float array) =
+  assert (inten <= Array.length values);
+  for i = 0 to Array.length values - 1 - inten do
+    values.(i) <-
+      values.(i) +. (values.(i + inten) /. float_of_int inten)
+  done
+
+let range (inten : float) (values : float array) =
+  let sine_float = 400. in
+  let old_value = inten in
+  let old_min = 0.0 in
+  let old_max = 10.0 in
+  let new_min = 0.8 in
+  let new_max = 1.2 in
+  let new_value =
+    (old_value -. old_min) /. (old_max -. old_min)
+    *. (new_max -. new_min)
+    +. new_min
+  in
+  for i = 0 to Array.length values - 1 do
+    values.(i) <- new_value *. sine_float
+  done
+
+(* Smoothing lowpass filter example adapted from:
+   http://phrogz.net/js/framerate-independent-low-pass-filter.html*)
+let smooth (smoothing : float) (values : float array) =
+  let value = ref values.(0) in
+  for i = 1 to Array.length values - 1 do
+    let current_value = values.(i) in
+    value := !value +. ((current_value -. !value) /. smoothing);
+    values.(i) <- current_value
+  done
+
+let new_val
+    (ovalue : float)
+    (omin : float)
+    (omax : float)
+    (nmin : float)
+    (nmax : float) =
+  ((ovalue -. omin) /. (omax -. omin) *. (nmax -. nmin)) +. nmin
+
+let attack (inten : float) (values : float array) =
+  for i = 1 to Array.length values - 1 do
+    values.(i) <-
+      values.(i) *. values.(i) *. new_val inten 0.0 1.0 1.0 2.0
+  done
+
+let decay (inten : float) (values : float array) =
+  for i = 1 to Array.length values - 1 do
+    values.(i) <-
+      values.(i)
+      *. (1.0 -. new_val inten 0.0 1.0 0.0 0.8)
+         ** float_of_int (Array.length values)
+  done
+
+let release (inten : float) (values : float array) =
+  for i = 1 to Array.length values - 1 do
+    values.(i) <-
+      values.(i)
+      *. (1.0 -. new_val inten 0.0 1.0 0.0 0.65)
+         ** float_of_int (Array.length values)
+  done
+
+let adsr (inten : float) (values : float array) =
+  for i = 1 to Array.length values / 4 do
+    values.(i) <-
+      values.(i) *. values.(i) *. new_val inten 0.0 1.0 1.0 2.0
+  done;
+  for i = (Array.length values / 4) + 1 to Array.length values / 2 do
+    values.(i) <-
+      values.(i)
+      *. (1.0 -. new_val inten 0.0 1.0 0.0 0.8)
+         ** float_of_int (Array.length values)
+  done;
+  for
+    i = (Array.length values / 2) + 1
+    to (Array.length values / 2) + (Array.length values / 4)
+  do
+    values.(i) <- values.(i)
+  done;
+  for
+    i = (Array.length values / 2) + (Array.length values / 4) + 1
+    to Array.length values - 1
+  do
+    values.(i) <-
+      values.(i)
+      *. (1.0 -. new_val inten 0.0 1.0 0.0 0.65)
+         ** float_of_int (Array.length values)
+  done
 
 (* Mutates an array in-place such that each element is the average of
    itself and the next n elements. *)
