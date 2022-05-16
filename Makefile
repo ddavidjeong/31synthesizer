@@ -31,3 +31,6 @@ main2:
 
 terminal:
 	OCAMLRUNPARAM=b dune exec bin/terminal.exe
+
+docs:
+	dune build @doc

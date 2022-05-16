@@ -63,6 +63,13 @@ let get_generator = function
   | "sine" -> new Audio.Mono.Generator.sine
   | _ -> new Audio.Mono.Generator.sine
 
+let get_filter = function
+| "adsr" -> adsr
+| "smooth" -> smooth
+| "blur" -> blur
+| "range" -> range
+| _ -> blur
+
 let play_using_generator input =
   let total_duration = snd input in
   let channels = 2 in
@@ -88,21 +95,8 @@ let play_using_generator input =
   for i = 0 to last_index do
     generator1#fill buf1;
     generator2#fill buf2;
-
-    (* Envelope *)
-    (*envelope 10. i last_index buf;*)
-
-    (* Avg filter *)
-
-    (* let outbuf = blur (2.) buf1 Smoothing using my blur *)
-    (* let outbuf = adsr (1.0) buf1 *)
-    (* let outbuf = range 1.0 buf1 *)
     let outbuf =
-      smooth (-0.9) buf1
-      (* Smoothing using smooth example *)
-
-      (*let buf = Audio.of_array a1 in*)
-      (* Create abstract Audio.t from array *)
+      get_filter (frth input) (fifth input) buf1
     in
 
     wav#write outbuf;
@@ -135,7 +129,7 @@ let terminal_interface =
   while true do
     print_string
       "To play a sound, please input: <frequency : float> <duration : \
-       int> <waveform : string> <filter : string> \n\
+       int> <waveform : string>  \n\ <filter : string> <filter intensity : float> \n\
       \       To record, please enter \"record\". Then, input the \
        required data.\n\
       \       To stop recording, enter \"stop\"\n\

@@ -82,8 +82,8 @@ let get_sr sound = sound.sample_rate
 let get_generator sound = sound.sound_state.generator
 
 let start_generator sound =
-  let buf = sound.sound_state.buffer in
-  let generator = sound.sound_state.generator in
+  let buf = get_buf sound in
+  let generator = get_generator sound in
   generator#fill buf;
   sound.sound_state.buffer <- buf
 

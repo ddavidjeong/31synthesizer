@@ -177,13 +177,12 @@ let mutated_slider =
 let io1 = IO.init_io 4 44100 "filename"
 let io2 = IO.init_io 4 44100 ""
 
-(* let arr = [| 1.0; 2.0; 3.0 |] *)
 let buf1 =
   let a = [| [| 1.0 |] |] in
   Audio.of_array a
 
 let buf1_2ch =
-  let a = [| [| 1.0 |] |] in
+  let a = [| [| 1.0 |]; [| 1.0 |] |] in
   Audio.of_array a
 
 let buf2 =
@@ -191,7 +190,7 @@ let buf2 =
   Audio.of_array a
 
 let buf2_2ch =
-  let a = [| [| 0. |] |] in
+  let a = [| [| 0. |]; [| 0. |] |] in
   Audio.of_array a
 
 let buf3 =
@@ -199,15 +198,15 @@ let buf3 =
   Audio.of_array a
 
 let buf3_2ch =
-  let a = [| [| 1.0; 2.0; 3.0 |] |] in
+  let a = [| [| 1.0; 2.0; 3.0 |]; [| 1.0; 2.0; 3.0 |] |] in
   Audio.of_array a
 
 let buf4 =
-  let a = [| [| 1.0 |]; [| 1.0 |] |] in
+  let a = [| [| 0.0; 1.0; 0.0 |] |] in
   Audio.of_array a
 
-let buf4_2ch =
-  let a = [| [| 1.0 |]; [| 1.0 |] |] in
+let buf4 =
+  let a = [| [| 0.0; 1.0; 0.0 |]; [| 0.0; 1.0; 0.0 |] |] in
   Audio.of_array a
 
 let filter_tests =
@@ -215,6 +214,9 @@ let filter_tests =
     smooth_test "smooth test with no-change smoothing"
       [| [| 1.0; 2.0; 3.0 |] |]
       1.0 buf3;
+    (*smooth_test "2ch smooth test with no-change smoothing"
+      [| [| 1.0; 2.0; 3.0 |]; [| 1.0; 2.0; 3.0 |] |]
+      1.0 buf3;*)
     smooth_test "smooth\n test of 2.0 smoothing"
       [| [| 1.0 |] |]
       2.0 buf1;
@@ -243,8 +245,8 @@ let sound_tests =
     is_playing_test "sound is not playing" sound2 false;
     set_buf_test "set buf to an array of [|[|1.0|]|]" buf1 sound5
       [| [| 1.0 |] |];
-    set_buf_test "set buf to an array of [|[||]|]" buf2 sound5
-      [| [||] |];
+    set_buf_test "set buf to an array of [|[|0.|]|]" buf2 sound5
+      [| [|0.|] |];
   ]
 
 let gui_tests =

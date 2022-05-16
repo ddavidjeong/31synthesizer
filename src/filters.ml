@@ -70,7 +70,7 @@ let all_channels array func =
 let range (inten : float) buf =
   let arr = Audio.to_array buf in
   let range  (values : float array) =
-    let sine_float = 400. in
+    let sine_float = 0.95 in
     let old_value = inten in
     let old_min = 0.0 in
     let old_max = 10.0 in
@@ -82,7 +82,7 @@ let range (inten : float) buf =
       +. new_min
     in
     for i = 0 to Array.length values - 1 do
-      values.(i) <- new_value *. sine_float
+      values.(i) <- values.(i) *. new_value *. sine_float
     done
 in
 all_channels arr range;
