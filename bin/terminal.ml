@@ -3,13 +3,25 @@ open Mm_audio
 open Mm
 open Filters
 
+let channels = 4
+let sample_rate = 44100
+let blen = 1024
+let use_envelope = ref false
+let record_on = ref false
+
 let parse (input : string) : float * int * string * string * float =
   let inputs = String.split_on_char ' ' input in
   let freq = List.nth inputs 0 |> float_of_string in
   let dur = List.nth inputs 1 |> int_of_string in
   let wave = List.nth inputs 2 in
-  let filter = List.nth inputs 3 in
-  let filter_inten = List.nth inputs 4 |> float_of_string in
+  let filter =
+    try List.nth inputs 3 with
+    | _ -> "no filter"
+  in
+  let filter_inten =
+    try List.nth inputs 4 |> float_of_string with
+    | _ -> 0.
+  in
   (freq, dur, wave, filter, filter_inten)
 
 let fst (x, _, _, _, _) = x
@@ -25,23 +37,31 @@ let get_wave = function
   | "sine" -> Synth__Sound.Sine
   | _ -> Synth__Sound.Sine
 
+let get_filter_fun filter =
+  use_envelope := false;
+  match filter with
+  | "envelope" ->
+      use_envelope := true;
+      fun x y -> y
+  | "blur" -> Filters.blur
+  | "smooth" -> Filters.smooth
+  | "adsr" -> Filters.adsr
+  | _ -> fun x y -> y
+
 let playback fn = IO.open_wav fn
 
 let rec record_sound io input =
   let total_duration = snd input in
   let frequency = fst input in
-  let channels = 4 in
-  let sample_rate = 2000 in
-  (* let ao = new Mm_ao.writer channels sample_rate in *)
-  (* let wav = new Audio.IO.Writer.to_wav_file channels sample_rate
-     "../output/out.wav" in *)
-  (* let wave = Synth.sound *)
-  let blen = 1024 in
   let wave = get_wave (thd input) in
+  let filter = get_filter_fun (frth input) in
+  let param = fifth input in
   let sound =
     Synth__Sound.new_wave wave frequency sample_rate channels blen
   in
-  for _ = 0 to sample_rate / blen * total_duration do
+  for _ = 0 to (sample_rate / blen * total_duration) - 1 do
+    Sound.start_generator sound;
+    (* Sound.set_buf sound outbuf; *)
     Synth__Sound.start sound;
     Synth__IO.record sound io
   done;
@@ -56,103 +76,80 @@ and record_play io =
   | x when String.trim x = "stop" -> Synth__IO.stop_recording io
   | input -> input |> parse |> record_sound io
 
-let get_generator = function
-  | "square" -> new Audio.Mono.Generator.square
-  | "saw" -> new Audio.Mono.Generator.saw
-  | "triangle" -> new Audio.Mono.Generator.triangle
-  | "sine" -> new Audio.Mono.Generator.sine
-  | _ -> new Audio.Mono.Generator.sine
+let get_generator wave =
+  match wave with
+  | "square" -> Sound.Square
+  | "saw" -> Sound.Saw
+  | "triangle" -> Sound.Triangle
+  | "sine" -> Sound.Sine
+  | _ -> Sound.Sine
 
-let get_filter = function
-| "adsr" -> adsr
-| "smooth" -> smooth
-| "blur" -> blur
-| "range" -> range
-| _ -> blur
-
-let play_using_generator input =
-  let total_duration = snd input in
-  let channels = 2 in
-  let sample_rate = 44100 in
+let play_sound input =
   let freq = fst input in
-  let ao = new Mm_ao.writer channels sample_rate in
-  let wav =
-    new Audio.IO.Writer.to_wav_file channels sample_rate "out.wav"
-  in
-  let blen = 1024 in
-  let buf1 = Audio.create channels blen in
-  let buf2 = Audio.create channels blen in
+  let total_duration = snd input in
   let wave1 = get_generator (thd input) in
-  let wave2 = get_generator "square" in
-  (* let filter = (frth input) in *)
-  let generator1 =
-    new Audio.Generator.of_mono (wave1 sample_rate freq)
-  in
-  let generator2 =
-    new Audio.Generator.of_mono (wave2 sample_rate freq)
-  in
+  let filter = get_filter_fun (frth input) in
+  let param = fifth input in
+  let sound = Sound.new_wave wave1 freq sample_rate channels blen in
+  let buf1 = Sound.get_buf sound in
   let last_index = (sample_rate / blen * total_duration) - 1 in
   for i = 0 to last_index do
-    generator1#fill buf1;
-    generator2#fill buf2;
+    Sound.start_generator sound;
     let outbuf =
-      get_filter (frth input) (fifth input) buf1
+      if !use_envelope then envelope i last_index param buf1
+      else filter param buf1
     in
-
-    wav#write outbuf;
-    ao#write outbuf
+    Sound.set_buf sound outbuf;
+    Sound.start sound
   done;
-  wav#close;
-  ao#close
+  Sound.release sound
 
-let play_using_synth input =
-  let total_duration = snd input in
-  let frequency = fst input in
-  let channels = 4 in
-  let sample_rate = 44100 in
-  let blen = sample_rate * total_duration in
-  let wave = get_wave (thd input) in
-  let sound =
-    Synth__Sound.new_wave wave frequency sample_rate channels blen
-  in
-  Synth__Sound.start sound
-
-(* Use this to switch between playing a whole buffer or looping over a
-   generator
-
-   So apparently Synth just uses generator *)
-let play_sound input =
-  (*play_using_synth input*)
-  play_using_generator input
+(* let play_sound input = let total_duration = snd input in let
+   frequency = fst input in let channels = 4 in let sample_rate = 44100
+   in let blen = sample_rate * total_duration in let wave = get_wave
+   (thd input) in let sound = Synth__Sound.new_wave wave frequency
+   sample_rate channels blen in Synth__Sound.start sound *)
 
 let terminal_interface =
+  print_string
+    "\n\
+     - To play a sound, please input: <frequency : float> <duration : \
+     int> <waveform : string> <filter : string> <filter parameter : \
+     float>\n\
+     - To play a .wav file please enter \"play\". Then, input file \
+     name when prompted.\n\
+     - To record, please enter \"record\". Then, input the required \
+     data.\n\
+     - To stop recording, enter \"stop\"\n\
+     - To exit the interface, enter \"quit\"\n\n";
   while true do
-    print_string
-      "To play a sound, please input: <frequency : float> <duration : \
-       int> <waveform : string>  \n\ <filter : string> <filter intensity : float> \n\
-      \       To record, please enter \"record\". Then, input the \
-       required data.\n\
-      \       To stop recording, enter \"stop\"\n\
-      \       To exit the interface, enter \"quit\"\n\
-       > ";
+    print_string "> ";
     match read_line () with
     | x when String.trim x = "quit" -> Stdlib.exit 0
     | x when String.trim x = "record" ->
-        let ch = 4 in
-        let sr = 2000 in
-        let io = Synth__IO.init_io ch sr "test" in
+        record_on := true;
+        let fn =
+          read_line
+            (print_endline
+               "\nPlease enter the name for your new file: \n")
+        in
+        let io = IO.init_io channels sample_rate fn in
         record_play io
     | x when String.trim x = "play" -> begin
         try
           let fn =
-            read_line (print_endline "Please enter your filename: ")
+            read_line (print_endline "\nPlease enter your filename: \n")
           in
           playback fn
         with
         | Unix.Unix_error _ ->
-            print_endline "This is not a valid file name."
+            print_endline "\nThis is not a valid file name.\n"
         | Invalid_argument _ -> ()
         | _ -> ()
       end
-    | input -> input |> parse |> play_sound
+    | input -> (
+        try input |> parse |> play_sound with
+        | _ ->
+            print_endline
+              "\nThis is not a valid command. Try again pls. \n")
   done

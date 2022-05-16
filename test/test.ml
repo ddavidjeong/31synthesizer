@@ -214,9 +214,8 @@ let filter_tests =
     smooth_test "smooth test with no-change smoothing"
       [| [| 1.0; 2.0; 3.0 |] |]
       1.0 buf3;
-    (*smooth_test "2ch smooth test with no-change smoothing"
-      [| [| 1.0; 2.0; 3.0 |]; [| 1.0; 2.0; 3.0 |] |]
-      1.0 buf3;*)
+    (*smooth_test "2ch smooth test with no-change smoothing" [| [| 1.0;
+      2.0; 3.0 |]; [| 1.0; 2.0; 3.0 |] |] 1.0 buf3;*)
     smooth_test "smooth\n test of 2.0 smoothing"
       [| [| 1.0 |] |]
       2.0 buf1;
@@ -229,6 +228,9 @@ let filter_tests =
     blur_test "blur test of 1.0 blurring"
       [| [| 3.0; 5.0; 3.0 |] |]
       1. buf3;
+    blur_test "blur test of 1.0 blurring"
+      [| [| 3.0; 5.0; 3.0 |] |]
+      2. buf3;
   ]
 
 let sound_tests =
@@ -246,7 +248,7 @@ let sound_tests =
     set_buf_test "set buf to an array of [|[|1.0|]|]" buf1 sound5
       [| [| 1.0 |] |];
     set_buf_test "set buf to an array of [|[|0.|]|]" buf2 sound5
-      [| [|0.|] |];
+      [| [| 0. |] |];
   ]
 
 let gui_tests =

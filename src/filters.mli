@@ -15,10 +15,5 @@ val smooth : float -> Audio.t -> Audio.t
     factor must be greater than 0. *)
 
 val adsr : float -> Audio.t -> Audio.t
-
 val range : float -> Audio.t -> Audio.t
-
 val envelope : int -> int -> float -> Audio.t -> Audio.t
-(** TODO @david and @ricardo *)
-
-
