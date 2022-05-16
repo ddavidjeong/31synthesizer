@@ -14,6 +14,19 @@ opam install ocamlsdl2
 
 # Instructions for running the GUI:
 
+The command 'make main' runs the GUI interface. Press the labeled keys to play
+the corresponding note labeled either above or below the square. Below the 
+notes, there are clickable settings that can change the waveform or add a 
+filter over the played sound. Use the sliders that appear below the filter 
+buttons to change the intensity of the filter being applied.
+
+To record your session, click the record button before using the synthesizer. 
+Make sure to unclick record to terminate the recording. To register one second
+of silence, press the space bar. The recording will be saved in the form of a 
+.wav file in the same directory of the source code.
+
+To quit from the GUI interface, press esc or the close button of the native 
+window. 
 
 # Instructions for running the Terminal Interface:
 
