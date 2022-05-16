@@ -5,11 +5,6 @@ let get_wave = function | "square" -> Sound.Square | "saw" ->
 Sound.Saw | "triangle" -> Sound.Triangle | "sine" -> Sound.Sine | _
 -> Sound.Sine
 
-let fst (x, _, _, _) = x 
-let snd (_, x, _, _) = x 
-let thd (_, _, x, _) = x 
-let frth (_, _, _, x) = x
-
 let print_float_array a =
   print_string "\n[| ";
   for i = 0 to Array.length a - 1 do
@@ -62,8 +57,8 @@ let range (inten : float) buf =
     let old_value = inten in
     let old_min = 0.0 in
     let old_max = 10.0 in
-    let new_min = 0.8 in
-    let new_max = 1.2 in
+    let new_min = 0.0 in
+    let new_max = inten in
     let new_value =
       (old_value -. old_min) /. (old_max -. old_min)
       *. (new_max -. new_min)
@@ -181,35 +176,6 @@ let envelope (index : int) (last_index : int) (factor : float) buf =
   in
   Audio.add_coeff buf (inc_coeff -. dec_coeff |> Float.abs) buf;
   buf
-
-(* let play_using_generator input = let total_duration = snd input in
-   let channels = 2 in let sample_rate = 44100 in let frequency = fst
-   input in let wav = new Audio.IO.Writer.to_wav_file channels
-   sample_rate "out.wav" in let blen = 1024 in let wave = get_wave (thd
-   input) in let sound = Synth__Sound.new_wave wave frequency
-   sample_rate channels blen in let buf = Sound.get_buf sound in let
-   filter = (frth input) in let generator = new Audio.Generator.of_mono
-   (wave sample_rate freque) in let ao = new Mm_ao.writer channels
-   sample_rate in let wav = new Audio.IO.Writer.to_wav_file channels
-   sample_rate "out.wav" in let blen = 1024 in let buf = Audio.create
-   channels blen in let wave = get_generator (thd input) in let filter =
-   (frth input) in let generator = new Audio.Generator.of_mono (wave
-   sample_rate frequency) in let last_index = (sample_rate / blen *
-   total_duration) - 1 in for (i = 0 to last_index do Envelope envelope
-   10. i last_index buf;
-
-   let a = Audio.to_array buf in blur 2 |> all_channels a; smooth 5. |>
-   all_channels a; let buf = Audio.of_array a in
-
-   (* Create abstract Audio.t from array *) wav#write buf (* Sound.start
-   sound *) done; wav#close *)
-(* Sound.release sound*)
-
-(* let play_using_synth input = let total_duration = snd input in let
-   frequency = fst input in let channels = 4 in let sample_rate = 44100
-   in let blen = sample_rate * total_duration in let wave = get_wave
-   (thd input) in let sound = Synth__Sound.new_wave wave frequency
-   sample_rate channels blen in Synth__Sound.start sound *)
 
 let add_waves w1 w2 sum =
   let max = ref 0. in
