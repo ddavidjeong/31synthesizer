@@ -17,7 +17,7 @@ finalcheck:
 
 zip:
 	rm -f synth.zip
-	zip -r synth.zip .
+	zip -r synth.zip . -x@exclude.lst
 
 clean:
 	dune clean
@@ -25,7 +25,6 @@ clean:
 
 main:
 	OCAMLRUNPARAM=b dune exec bin/main.exe
-
 
 terminal:
 	OCAMLRUNPARAM=b dune exec bin/terminal.exe
