@@ -26,8 +26,6 @@ clean:
 main:
 	OCAMLRUNPARAM=b dune exec bin/main.exe
 
-main2:
-	OCAMLRUNPARAM=b dune exec bin/main2.exe
 
 terminal:
 	OCAMLRUNPARAM=b dune exec bin/terminal.exe

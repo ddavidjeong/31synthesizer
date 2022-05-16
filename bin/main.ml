@@ -1,8 +1,7 @@
-open Graphics
 open Printf
 open Synth
-open Sdlevent
 open Sdl
+open Sdlevent
 open Mm
 open Mm_audio
 
@@ -28,14 +27,12 @@ let square_button = Gui.create_button 325 200 50 50
 let triangle_button = Gui.create_button 400 200 50 50
 let blur_button = Gui.create_button 190 290 40 40
 let smooth_button = Gui.create_button 245 290 40 40
-let envelope_button = Gui.create_button 325 285 125 50
-let adsr_button = Gui.create_button 325 285 125 50
-(** CHANGE X Y COORDINATES*)
-let blur_slider = Gui.create_slider 180 380 blur_button
-let smooth_slider = Gui.create_slider 180 380 smooth_button
-let envelope_slider = Gui.create_slider 335 380 envelope_button
-let adsr_slider = Gui.create_slider 335 380 adsr_button
-(** CHANGE X Y COORDINATES*)
+let envelope_button = Gui.create_button 400 285 125 50
+let adsr_button = Gui.create_button 300 290 40 40
+let blur_slider = Gui.create_slider 210 380 blur_button
+let smooth_slider = Gui.create_slider 210 380 smooth_button
+let adsr_slider = Gui.create_slider 210 380 adsr_button
+let envelope_slider = Gui.create_slider 410 380 envelope_button
 let which_wave = ref "sine"
 let blur_param = ref 1.
 let smooth_param = ref 1.
@@ -52,12 +49,13 @@ let buttons =
     blur_button;
     smooth_button;
     envelope_button;
+    adsr_button;
   ]
 
 let wave_buttons =
   [ sine_button; saw_button; square_button; triangle_button ]
 
-let filter_buttons = [ blur_button; smooth_button ]
+let filter_buttons = [ blur_button; smooth_button; adsr_button ]
 
 let set_color_black renderer =
   Sdlrender.set_draw_color renderer (0, 0, 0) 255
@@ -100,7 +98,7 @@ let clear_slider renderer slider =
   set_color_white renderer;
   let x = Gui.get_x_slider slider in
   let y = Gui.get_y_slider slider in
-  Sdlrender.fill_rect renderer { x; y = y - 10; w = 120; h = 20 }
+  Sdlrender.fill_rect renderer { x; y = y - 10; w = 120; h = 40 }
 
 (* creates the initial screen *)
 let init_render renderer butt_lst =
@@ -148,16 +146,19 @@ let init_render renderer butt_lst =
       { x = 325; y = 200; w = 50; h = 50 };
       { x = 400; y = 200; w = 50; h = 50 };
       (* filter buttons *)
-      { x = 175; y = 285; w = 125; h = 50 };
+      { x = 175; y = 285; w = 180; h = 50 };
       { x = 190; y = 290; w = 40; h = 40 };
       { x = 245; y = 290; w = 40; h = 40 };
-      { x = 325; y = 285; w = 125; h = 50 };
+      { x = 300; y = 290; w = 40; h = 40 };
+      { x = 400; y = 285; w = 125; h = 50 };
     |];
 
-  (* slider notch current position *)
+  (* slider current position *)
   if Gui.get_clicked blur_button then draw_slider renderer blur_slider
   else if Gui.get_clicked smooth_button then
     draw_slider renderer smooth_slider
+  else if Gui.get_clicked adsr_button then
+    draw_slider renderer adsr_slider
   else ();
 
   if Gui.get_clicked envelope_button then
@@ -185,8 +186,9 @@ let init_render renderer butt_lst =
   (* filter labels *)
   print_x_padding 50 350 8 "filters:" Gui.Black;
   print_x_padding 195 350 8 "blur" Gui.Black;
-  print_x_padding 245 350 8 "smooth" Gui.Black;
-  print_x_padding 355 350 8 "envelope" Gui.Black;
+  print_x_padding 240 350 8 "smooth" Gui.Black;
+  print_x_padding 305 350 8 "adsr" Gui.Black;
+  print_x_padding 425 350 8 "envelope" Gui.Black;
 
   (* description *)
   (* welcome to our synthesizer! Press any of the labeled keys to play
@@ -226,6 +228,9 @@ let init_render renderer butt_lst =
     Gui.Black;
   print_x_padding 630 195 8 "w" Gui.Black;
   print_x_padding 641 195 8 "indow" Gui.Black;
+  print_x_padding 630 215 8 "made w" Gui.Black;
+  print_x_padding 680 215 8 "ith love by:" Gui.Black;
+  print_x_padding 650 228 8 "anna lin, ddavid, rickyp, seen" Gui.Black;
 
   (* Sdlrender.draw_rect renderer { x = 630; y = 20; w = 1; h = 100 };
      Sdlrender.draw_rect renderer { x = 680; y = 20; w = 1; h = 100 };
@@ -442,19 +447,26 @@ let mouseclick_button (e : mouse_button_event) renderer =
   else if range x y 40 40 smooth_button then
     press_only_one_filter 245 290 40 40 renderer filter_buttons
       smooth_slider (* envelope *)
-  else if range_prim x y 325 285 125 50 then
+  else if range x y 40 40 adsr_button then
+    press_only_one_filter 300 290 40 40 renderer filter_buttons
+      adsr_slider (* adsr *)
+  else if range_prim x y 400 285 125 50 then
     press_slider_button renderer envelope_button envelope_slider
   else if
     (* blur slider *)
-    range_prim x y 175 370 120 20 && Gui.get_clicked blur_button
+    range_prim x y 210 370 120 20 && Gui.get_clicked blur_button
   then update_slider blur_slider blur_param
   else if
     (* smooth slider *)
-    range_prim x y 175 370 120 20 && Gui.get_clicked smooth_button
+    range_prim x y 210 370 120 20 && Gui.get_clicked smooth_button
   then update_slider smooth_slider smooth_param
   else if
+    (* smooth slider *)
+    range_prim x y 210 370 120 20 && Gui.get_clicked adsr_button
+  then update_slider adsr_slider adsr_param
+  else if
     (* envelope slider *)
-    range_prim x y 320 370 120 20 && Gui.get_clicked envelope_button
+    range_prim x y 410 370 120 20 && Gui.get_clicked envelope_button
   then update_slider envelope_slider envelope_param
   else ()
 
@@ -468,21 +480,6 @@ let writebuff_and_play sound filter param =
     Sound.start sound;
     if Gui.get_clicked record then IO.record sound !io
   done
-
-(* envelope filters *)
-(* let write_and_play_envelope sound = for i = 0 to last_index do
-   Sound.start_generator sound; let buf = Sound.get_buf sound in let
-   new_buf = Filters.envelope i last_index !envelope_param buf in
-   Sound.set_buf sound new_buf; Sound.start sound; if Gui.get_clicked
-   record then IO.record sound !io done *)
-
-(* envelope filter and either blur or smooth filter *)
-(* let writebuff_and_play2 sound filter param = for i = 0 to last_index
-   do Sound.start_generator sound; let buf = Sound.get_buf sound in let
-   new_buf = Filters.envelope i last_index !envelope_param buf in let
-   new_buf = filter param new_buf in Sound.set_buf sound new_buf;
-   Sound.start sound; if Gui.get_clicked record then IO.record sound !io
-   done *)
 
 let writebuff_and_play3 ?(filter = fun x y -> y) sound param =
   for i = 0 to last_index do
@@ -508,12 +505,17 @@ let proc_events renderer = function
         Gui.get_clicked envelope_button && Gui.get_clicked smooth_button
       then
         writebuff_and_play3 ~filter:Filters.smooth sound !smooth_param
+      else if
+        Gui.get_clicked envelope_button && Gui.get_clicked adsr_button
+      then writebuff_and_play3 ~filter:Filters.adsr sound !adsr_param
       else if Gui.get_clicked envelope_button then
         writebuff_and_play3 sound !envelope_param
       else if Gui.get_clicked blur_button then
         writebuff_and_play sound Filters.blur !blur_param
       else if Gui.get_clicked smooth_button then
         writebuff_and_play sound Filters.smooth !smooth_param
+      else if Gui.get_clicked adsr_button then
+        writebuff_and_play sound Filters.adsr !adsr_param
       else
         for i = 0 to (sample_rate / buf_len * 1) - 1 do
           Sound.start_generator sound;

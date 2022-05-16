@@ -9,8 +9,8 @@ type wave =
 type synth
 
 val new_wave : wave -> float -> int -> int -> int -> synth
-(** [create waveform (wave)] create a new * synthesized sound with the
-    given waveform with the given frequency *)
+(** [new_wave waveform wave freq sr ch bl] create a new synthesized
+    sound with the given waveform with the given frequency *)
 
 val start : synth -> unit
 (** [start synth] starts the synth sound *)

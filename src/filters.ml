@@ -53,7 +53,7 @@ let all_channels array func =
 
 let range (inten : float) buf =
   let arr = Audio.to_array buf in
-  let range  (values : float array) =
+  let range (values : float array) =
     let old_value = inten in
     let old_min = 0.0 in
     let old_max = 10.0 in
@@ -65,12 +65,12 @@ let range (inten : float) buf =
       +. new_min
     in
     for i = 0 to Array.length values - 1 do
-      values.(i) <- values.(i) *. new_value 
+      values.(i) <- values.(i) *. new_value
     done
-in
-all_channels arr range;
-let buf = Audio.of_array arr in
-buf
+  in
+  all_channels arr range;
+  let buf = Audio.of_array arr in
+  buf
 
 let new_val
     (ovalue : float)
@@ -104,7 +104,7 @@ let release (inten : float) (values : float array) =
 
 let adsr (inten : float) buf =
   let arr = Audio.to_array buf in
-  let adsr  (values : float array) =
+  let adsr (values : float array) =
     for i = 1 to Array.length values / 4 do
       values.(i) <-
         values.(i) *. values.(i) *. new_val inten 0.0 1.0 1.0 2.0
@@ -113,7 +113,7 @@ let adsr (inten : float) buf =
       values.(i) <-
         values.(i)
         *. (1.0 -. new_val inten 0.0 1.0 0.0 0.8)
-          ** float_of_int (Array.length values)
+           ** float_of_int (Array.length values)
     done;
     for
       i = (Array.length values / 2) + 1
@@ -128,12 +128,12 @@ let adsr (inten : float) buf =
       values.(i) <-
         values.(i)
         *. (1.0 -. new_val inten 0.0 1.0 0.0 0.65)
-          ** float_of_int (Array.length values)
+           ** float_of_int (Array.length values)
     done
-in
-all_channels arr adsr;
-let buf = Audio.of_array arr in
-buf
+  in
+  all_channels arr adsr;
+  let buf = Audio.of_array arr in
+  buf
 
 let iden (n : float) buf = buf
 
