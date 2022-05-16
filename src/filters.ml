@@ -1,13 +1,16 @@
 open Mm_audio
 open Mm
 
-let get_wave = function | "square" -> Sound.Square | "saw" ->
-Sound.Saw | "triangle" -> Sound.Triangle | "sine" -> Sound.Sine | _
--> Sound.Sine
+let get_wave = function
+  | "square" -> Sound.Square
+  | "saw" -> Sound.Saw
+  | "triangle" -> Sound.Triangle
+  | "sine" -> Sound.Sine
+  | _ -> Sound.Sine
 
-let fst (x, _, _, _) = x 
-let snd (_, x, _, _) = x 
-let thd (_, _, x, _) = x 
+let fst (x, _, _, _) = x
+let snd (_, x, _, _) = x
+let thd (_, _, x, _) = x
 let frth (_, _, _, x) = x
 
 let print_float_array a =
@@ -58,12 +61,7 @@ let all_channels array func =
 
 let range (inten : float) buf =
   let arr = Audio.to_array buf in
-<<<<<<< HEAD
   let range (values : float array) =
-    let sine_float = 0.95 in
-=======
-  let range  (values : float array) =
->>>>>>> d1118d5b99bab2e324edd336450ffbc90432bedb
     let old_value = inten in
     let old_min = 0.0 in
     let old_max = 10.0 in
@@ -75,7 +73,7 @@ let range (inten : float) buf =
       +. new_min
     in
     for i = 0 to Array.length values - 1 do
-      values.(i) <- values.(i) *. new_value 
+      values.(i) <- values.(i) *. new_value
     done
   in
   all_channels arr range;
@@ -215,14 +213,7 @@ let envelope (index : int) (last_index : int) (factor : float) buf =
    in let blen = sample_rate * total_duration in let wave = get_wave
    (thd input) in let sound = Synth__Sound.new_wave wave frequency
    sample_rate channels blen in Synth__Sound.start sound *)
-
-let add_waves w1 w2 sum =
-  let max = ref 0. in
-  for i = 0 to Array.length buf1 - 1 do
-    let value = buf1.(i) +. buf2.(i) in
-    if value > !max then max := value;
-    sum.(i) <- value
-  done;
-  for i = 0 to Array.length buf1 - 1 do
-    sum.(i) <- sum.(i) /. !max
-  done
+(* let add_waves w1 w2 sum = let max = ref 0. in for i = 0 to
+   Array.length buf1 - 1 do let value = buf1.(i) +. buf2.(i) in if value
+   > !max then max := value; sum.(i) <- value done; for i = 0 to
+   Array.length buf1 - 1 do sum.(i) <- sum.(i) /. !max done *)
