@@ -46,7 +46,8 @@ let get_filter_fun filter =
   | "blur" -> Filters.blur
   | "smooth" -> Filters.smooth
   | "adsr" -> Filters.adsr
-  | _ -> fun x y -> y
+  | "range" -> Filters.range
+  | _ -> Filters.iden
 
 let playback fn = IO.open_wav fn
 
@@ -56,13 +57,17 @@ let rec record_sound io input =
   let wave = get_wave (thd input) in
   let filter = get_filter_fun (frth input) in
   let param = fifth input in
-  let sound =
-    Synth__Sound.new_wave wave frequency sample_rate channels blen
-  in
-  for _ = 0 to (sample_rate / blen * total_duration) - 1 do
+  let sound = Sound.new_wave wave frequency sample_rate channels blen in
+  let buf = Sound.get_buf sound in
+  let last_index = (sample_rate / blen * total_duration) - 1 in
+  for i = 0 to last_index do
     Sound.start_generator sound;
-    (* Sound.set_buf sound outbuf; *)
-    Synth__Sound.start sound;
+    let outbuf =
+      if !use_envelope then envelope i last_index param buf
+      else filter param buf
+    in
+    Sound.set_buf sound outbuf;
+    Sound.start sound;
     Synth__IO.record sound io
   done;
   Synth__Sound.release sound;
@@ -70,8 +75,10 @@ let rec record_sound io input =
 
 and record_play io =
   print_string
-    "Input: <frequency : float> <duration : int> <waveform : string>  \
-     or \"quit\": ";
+    "\n\
+     Please input: <frequency : float> <duration : int> <waveform : \
+     string> <filter : string> <filter parameter : float>: \n\n\
+     > ";
   match read_line () with
   | x when String.trim x = "stop" -> Synth__IO.stop_recording io
   | input -> input |> parse |> record_sound io
@@ -103,12 +110,6 @@ let play_sound input =
     Sound.start sound
   done;
   Sound.release sound
-
-(* let play_sound input = let total_duration = snd input in let
-   frequency = fst input in let channels = 4 in let sample_rate = 44100
-   in let blen = sample_rate * total_duration in let wave = get_wave
-   (thd input) in let sound = Synth__Sound.new_wave wave frequency
-   sample_rate channels blen in Synth__Sound.start sound *)
 
 let terminal_interface =
   print_string

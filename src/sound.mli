@@ -1,5 +1,6 @@
 open Mm
 
+(** type [wave] is the 4 available waveforms for sound. *)
 type wave =
   | Sine
   | Saw
@@ -7,26 +8,20 @@ type wave =
   | Square
 
 type synth
+(** type [synth] contains all necessary information about a sound. *)
 
 val new_wave : wave -> float -> int -> int -> int -> synth
 (** [new_wave waveform wave freq sr ch bl] create a new synthesized
-    sound with the given waveform with the given frequency *)
+    sound with the given waveform with the given frequency. *)
 
 val start : synth -> unit
-(** [start synth] starts the synth sound *)
+(** [start synth] starts the synth sound. *)
 
 val release : synth -> unit
-(** [release synth] sends the release signal to [synth] *)
+(** [release synth] sends the release signal to [synth]. *)
 
 val is_playing : synth -> bool
-(** [is_playing synth] returns true if [synth] is still playing *)
-
-(* val make_generator : float -> int -> wave -> Audio.Generator.of_mono
-   (** [make_generator freq sr wave] creates a monodic generator from
-   the specified wave*) *)
-
-val get_generator : synth -> Audio.Generator.of_mono
-(** [get_generator synth] is the generator of synth [synth]*)
+(** [is_playing synth] returns true if [synth] is still playing. *)
 
 val start_generator : synth -> unit
 (** [start_generator synth] fills the buffer of synth [synth] using the

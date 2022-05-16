@@ -1,18 +1,6 @@
 open Mm_audio
 open Mm
 
-let get_wave = function
-  | "square" -> Sound.Square
-  | "saw" -> Sound.Saw
-  | "triangle" -> Sound.Triangle
-  | "sine" -> Sound.Sine
-  | _ -> Sound.Sine
-
-let fst (x, _, _, _) = x
-let snd (_, x, _, _) = x
-let thd (_, _, x, _) = x
-let frth (_, _, _, x) = x
-
 let print_float_array a =
   print_string "\n[| ";
   for i = 0 to Array.length a - 1 do
@@ -27,10 +15,8 @@ let all_channels a f =
     f a.(c)
   done
 
-let all_channels_2 a1 a2 f =
-  for c = 0 to Array.length a1 - 1 do
-    f a1.(c) a2.(c)
-  done
+(* let all_channels_2 a1 a2 f = for c = 0 to Array.length a1 - 1 do f
+   a1.(c) a2.(c) done *)
 
 (* Mutates an array in-place such that each element is the average of
    itself and the next n elements. *)
