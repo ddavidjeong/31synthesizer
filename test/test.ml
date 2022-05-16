@@ -331,7 +331,7 @@ let filter_tests =
       10. buf3_2ch;
     (*some test cases fail due to floating-point errors. an inten of
       10.0 or 0.0*)
-    range_test "unit 1.0 new max value" [| [| 1.; 1.; 1. |] |] 5.0 buf0;
+    range_test "unit 1.0 new max value" [| [| 2.5; 2.5; 2.5 |] |] 5.0 buf0;
   ]
 
 let sound_tests =

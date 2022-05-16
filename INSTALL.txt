@@ -1,21 +1,42 @@
 *Note: The synthesizer only works on macOS and Linux due to WSL permission errors with audio
 
-# macOS (homebrew)
+# Install instructions for macOS (homebrew)
 
 brew install libao
 opam install mm
 opam install ao
-opam install graphics
+opam install ocamlsdl2
 
-# Ubuntu/WSL
+# Install insutrctions for Ubuntu/WSL
 
-# install mm library
 opam install mm
-
-# install ao
 sudo apt-get install libao-dev
 opam install ao
+opam install ocamlsdl2
 
-# install graphics (if not yet installed)
-opam install graphics
+# instructions for running the GUI:
+
+# Instructions for running the Terminal Interface:
+
+The command 'make terminal' runs the terminal interface. You can follow the 
+command prompt but an input for frequency (400.0 - 600.0 is the sweet spot), 
+the duration of how long your sound will play (an int value), 
+waveform (your options are: sine, square, saw, triangle), 
+filter (range, adsr, blur, smooth, envelope) and a corresponding intensity 
+value for the filter (a float value between 0.0 to 10.0).
+
+An example command would be something like:
+"400.0 5 sine adsr 5.0"
+This wil run a sine wave with a adsr filter intensity of 5.0 which will play for
+5 seconds.
+
+If wanting to run unit waves without any filters, you can simply write nothing
+for the paramters of filter and filter intensity.
+
+An example command for a unit wave would be something like:
+"400.0 5 square"
+This will run a unit square wave for 5 seconds with no 
+filters added to the sound.
+
+
 
