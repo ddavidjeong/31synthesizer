@@ -72,7 +72,7 @@ val set_notch : int -> slider -> unit
     with slider [slider] to [x]. *)
 
 val key_pressed : keyboard_event -> string -> Sound.synth
-(** [key_pressed key waveform] is resulting synth with a frequency
+(** [key_pressed key waveform] is the resulting synth with the frequency
     associated with key [key] and with waveform [waveform]. *)
 
 val letters : Sdltype.renderer -> char -> color -> int -> int -> unit

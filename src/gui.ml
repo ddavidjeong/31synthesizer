@@ -318,6 +318,31 @@ let letters renderer (character : char) (color : color) =
       fun x y ->
         Sdlrender.draw_rects renderer
           [| { x; y = y + 4; w = 5; h = 2 } |]
+  | '0' ->
+      fun x y ->
+        Sdlrender.draw_rects renderer
+          [|
+            { x; y; w = 2; h = 10 };
+            { x = x + 5; y; w = 2; h = 10 };
+            { x; y; w = 7; h = 2 };
+            { x; y = y + 8; w = 7; h = 2 };
+          |];
+        Sdlrender.draw_lines renderer
+          [| (x + 6, y + 1); (x, y + 7); (x, y + 8); (x + 6, y + 2) |]
+  | '1' ->
+      fun x y ->
+        Sdlrender.draw_rects renderer
+          [| { x; y; w = 2; h = 2 }; { x = x + 2; y; w = 2; h = 10 } |]
+  | '5' ->
+      fun x y ->
+        Sdlrender.draw_rects renderer
+          [|
+            { x; y; w = 5; h = 2 };
+            { x; y = y + 4; w = 3; h = 2 };
+            { x; y = y + 8; w = 3; h = 2 };
+            { x; y; w = 2; h = 5 };
+            { x = x + 3; y = y + 4; w = 2; h = 5 };
+          |]
   | _ -> fun x y -> ()
 
 let sample_rate = 44100

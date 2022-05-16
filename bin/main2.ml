@@ -80,7 +80,16 @@ let draw_slider renderer slider =
       { x = x + 54; y = y - 3; w = 2; h = 8 };
       { x = x + 81; y = y - 3; w = 2; h = 8 };
       { x = x + 108; y = y - 3; w = 2; h = 8 };
-    |]
+    |];
+  Gui.letters renderer '1' Gui.Black
+    (Gui.get_x_slider slider + 103)
+    (Gui.get_y_slider slider + 15);
+  Gui.letters renderer '0' Gui.Black
+    (Gui.get_x_slider slider + 108)
+    (Gui.get_y_slider slider + 15);
+  Gui.letters renderer '1' Gui.Black
+    (Gui.get_x_slider slider + 1)
+    (Gui.get_y_slider slider + 15)
 
 let clear_slider renderer slider =
   set_color_white renderer;
@@ -180,8 +189,8 @@ let init_render renderer butt_lst =
      Below the notes, there are clickable settings that can change the
      waveform or add a filter over the played sound. To record your
      session, click the record button before using the synthesizer. Make
-     sure to unclick record to terminate the recording. To play no
-     sound, press the space bar. *)
+     sure to unclick record to terminate the recording. To register
+     silence, press the space bar. *)
   print_x_padding 630 20 13 "we" Gui.Black;
   print_x_padding 652 20 9 "lcom" Gui.Black;
   print_x_padding 690 20 9 "e" Gui.Black;
@@ -191,20 +200,22 @@ let init_render renderer butt_lst =
   print_x_padding 740 40 8 "play the corresponding" Gui.Black;
   print_x_padding 630 53 8 "note labeled above or" Gui.Black;
   print_x_padding 805 53 8 "below the square." Gui.Black;
+  print_x_padding 630 66 8 "to register silence,press the space bar."
+    Gui.Black;
 
-  print_x_padding 630 73 8 "below the notes,there are clickable"
+  print_x_padding 630 90 8 "below the notes,there are clickable"
     Gui.Black;
-  print_x_padding 630 86 8 "settings that can change the w" Gui.Black;
-  print_x_padding 872 86 8 "aveform" Gui.Black;
-  print_x_padding 630 99 8 "or apply a filter." Gui.Black;
-  print_x_padding 630 119 8 "to record,click the" Gui.Black;
-  print_x_padding 790 119 8 "rec" Gui.Red;
-  print_x_padding 820 119 8 "button before" Gui.Black;
-  print_x_padding 630 132 8 "using the sythesizer.make sure to un-"
+  print_x_padding 630 103 8 "settings that can change the w" Gui.Black;
+  print_x_padding 872 103 8 "aveform" Gui.Black;
+  print_x_padding 630 116 8 "or apply a filter." Gui.Black;
+  print_x_padding 630 136 8 "to record,click the" Gui.Black;
+  print_x_padding 790 136 8 "rec" Gui.Red;
+  print_x_padding 820 136 8 "button before" Gui.Black;
+  print_x_padding 630 149 8 "using the sythesizer.make sure to un-"
     Gui.Black;
-  print_x_padding 630 145 8 "click" Gui.Black;
-  print_x_padding 680 145 8 "rec" Gui.Red;
-  print_x_padding 710 145 8 "to terminate the recording." Gui.Black;
+  print_x_padding 630 162 8 "click" Gui.Black;
+  print_x_padding 680 162 8 "rec" Gui.Red;
+  print_x_padding 710 162 8 "to terminate the recording. 5" Gui.Black;
 
   (* Sdlrender.draw_rect renderer { x = 630; y = 20; w = 1; h = 100 };
      Sdlrender.draw_rect renderer { x = 680; y = 20; w = 1; h = 100 };
@@ -392,7 +403,8 @@ let mouseclick_button (e : mouse_button_event) renderer =
     draw_slider renderer slider;
     let float_x = float_of_int x in
     let float_minx = float_of_int minx in
-    map_pos_to_param float_x float_minx (float_minx +. 100.) 1. 9. param;
+    map_pos_to_param float_x float_minx (float_minx +. 100.) 1. 10.
+      param;
     Sdlrender.render_present renderer
   in
   let click_wave_button button waveform =
@@ -507,7 +519,7 @@ let proc_events renderer = function
 
 let () =
   Random.self_init ();
-  let width, height = (970, 400) in
+  let width, height = (970, 420) in
   Sdl.init [ `VIDEO ];
   let window, renderer =
     Sdlrender.create_window_and_renderer ~width ~height ~flags:[]
@@ -518,7 +530,6 @@ let () =
     init_render renderer buttons;
     let xy, buttons = Sdlmouse.get_state () in
     Sdlrender.draw_point renderer xy;
-
     Sdltimer.delay 10;
     match Sdlevent.poll_event () with
     | Some (Sdlevent.Quit _) -> Sdl.quit ()

@@ -34,18 +34,13 @@ let open_wav fn =
   let blen = 1024 in
   let ao = new Mm_ao.writer channels sr in
   let buf = Audio.create f#channels blen in
-  Printf.printf "Opened WAV file with %d channels at %dHz.\n%!"
-    f#channels f#sample_rate;
-  print_int duration;
-  print_float f#duration;
+  Printf.printf "\nPlayed WAV file named: %s!\n\n" fn;
   let loop_end =
     if duration = 1 then (sr / blen * duration) - 1
     else sr / blen * duration
   in
   for _ = 0 to loop_end do
     let r = f#read buf in
-    (* delay#process buf 0 r; *)
-    (* bqf#process buf 0 r; *)
     ao#write (Audio.sub buf 0 r)
   done;
   ao#close;
