@@ -1,20 +1,19 @@
 *Note: The synthesizer only works on macOS and Linux due to WSL permission errors with audio
 
 # Install instructions for macOS (homebrew)
-
 brew install libao
 opam install mm
 opam install ao
 opam install ocamlsdl2
 
 # Install insutrctions for Ubuntu/WSL
-
 opam install mm
 sudo apt-get install libao-dev
 opam install ao
 opam install ocamlsdl2
 
-# instructions for running the GUI:
+# Instructions for running the GUI:
+
 
 # Instructions for running the Terminal Interface:
 
@@ -31,12 +30,16 @@ This wil run a sine wave with a adsr filter intensity of 5.0 which will play for
 5 seconds.
 
 If wanting to run unit waves without any filters, you can simply write nothing
-for the paramters of filter and filter intensity.
+for the parameters of filter and filter intensity.
 
 An example command for a unit wave would be something like:
 "400.0 5 square"
 This will run a unit square wave for 5 seconds with no 
 filters added to the sound.
 
+To quit the terminal interface, simply enter "quit".
+
+# Instructions for running test cases:
+Simply run 'make test' to run the test cases for both GUI and filters.
 
 
