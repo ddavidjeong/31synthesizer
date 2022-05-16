@@ -46,7 +46,8 @@ let get_filter_fun filter =
   | "blur" -> Filters.blur
   | "smooth" -> Filters.smooth
   | "adsr" -> Filters.adsr
-  | _ -> fun x y -> y
+  | "range" -> Filters.range
+  | _ -> Filters.iden
 
 let playback fn = IO.open_wav fn
 
