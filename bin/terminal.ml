@@ -68,7 +68,7 @@ let get_filter = function
 | "smooth" -> smooth
 | "blur" -> blur
 | "range" -> range
-| _ -> blur
+| _ -> iden
 
 let play_using_generator input =
   let total_duration = snd input in
