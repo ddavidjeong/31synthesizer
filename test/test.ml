@@ -182,7 +182,15 @@ let buf1 =
   let a = [| [| 1.0 |] |] in
   Audio.of_array a
 
+let buf1_2ch =
+  let a = [| [| 1.0 |] |] in
+  Audio.of_array a
+
 let buf2 =
+  let a = [| [| 0. |] |] in
+  Audio.of_array a
+
+let buf2_2ch =
   let a = [| [| 0. |] |] in
   Audio.of_array a
 
@@ -190,7 +198,15 @@ let buf3 =
   let a = [| [| 1.0; 2.0; 3.0 |] |] in
   Audio.of_array a
 
+let buf3_2ch =
+  let a = [| [| 1.0; 2.0; 3.0 |] |] in
+  Audio.of_array a
+
 let buf4 =
+  let a = [| [| 1.0 |]; [| 1.0 |] |] in
+  Audio.of_array a
+
+let buf4_2ch =
   let a = [| [| 1.0 |]; [| 1.0 |] |] in
   Audio.of_array a
 
