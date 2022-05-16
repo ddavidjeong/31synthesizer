@@ -54,7 +54,7 @@ and record_play io =
   | input -> input |> parse |> record_sound io
 
 
-  let get_generator = function
+let get_generator = function
   | "square" -> new Audio.Mono.Generator.square
   | "saw" -> new Audio.Mono.Generator.saw
   | "triangle" -> new Audio.Mono.Generator.triangle
@@ -62,7 +62,7 @@ and record_play io =
   | _ -> new Audio.Mono.Generator.sine
 
 
-  let play_using_generator input = 
+let play_using_generator input = 
     let total_duration = snd input in
     let channels = 2 in
     let sample_rate = 44100 in
@@ -107,7 +107,7 @@ and record_play io =
     wav#close;
     ao#close
   
-  let play_using_synth input = 
+let play_using_synth input = 
     let total_duration = snd input in
     let frequency = fst input in
     let channels = 4 in
@@ -121,9 +121,9 @@ and record_play io =
         generator  
         
         So apparently Synth just uses generator *)
-  let play_sound input =
+let play_sound input =
     (*play_using_synth input*)
-    play_using_generator input
+  play_using_generator input
 
 let terminal_interface =
     while true do
